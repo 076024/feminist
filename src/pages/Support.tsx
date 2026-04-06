@@ -1,0 +1,163 @@
+import { useState } from "react";
+import Layout from "@/components/layout/Layout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Shield, Phone, ExternalLink, Heart, AlertTriangle } from "lucide-react";
+
+const hotlines = [
+  { name: "National Domestic Violence Hotline", number: "1-800-799-7233", url: "https://www.thehotline.org" },
+  { name: "RAINN Sexual Assault Hotline", number: "1-800-656-4673", url: "https://www.rainn.org" },
+  { name: "Crisis Text Line", number: "Text HOME to 741741", url: "https://www.crisistextline.org" },
+  { name: "National Suicide Prevention Lifeline", number: "988", url: "https://988lifeline.org" },
+];
+
+const resources = [
+  { name: "National Network to End Domestic Violence", url: "https://nnedv.org" },
+  { name: "UN Women", url: "https://www.unwomen.org" },
+  { name: "Planned Parenthood", url: "https://www.plannedparenthood.org" },
+  { name: "Mental Health America", url: "https://www.mhanational.org" },
+];
+
+const Support = () => {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({ message: "", category: "" });
+
+  const handleQuickExit = () => {
+    window.location.replace("https://www.google.com");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.message.trim() || !formData.category) {
+      toast({ title: "Please fill in all fields", variant: "destructive" });
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await supabase.from("help_requests").insert({
+      message: formData.message.trim(),
+      category: formData.category,
+    });
+    setLoading(false);
+
+    if (error) {
+      toast({ title: "Something went wrong. Please try again.", variant: "destructive" });
+    } else {
+      toast({ title: "Your message has been received. You are not alone." });
+      setFormData({ message: "", category: "" });
+    }
+  };
+
+  return (
+    <Layout>
+      {/* Quick Exit Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button onClick={handleQuickExit} variant="destructive" size="lg" className="shadow-xl font-bold">
+          <AlertTriangle className="h-4 w-4 mr-1" />
+          Quick Exit
+        </Button>
+      </div>
+
+      <section className="bg-primary text-primary-foreground py-16">
+        <div className="container max-w-3xl text-center space-y-4">
+          <Shield className="h-12 w-12 mx-auto" />
+          <h1 className="text-4xl md:text-5xl font-bold">You Are Not Alone</h1>
+          <p className="text-lg text-primary-foreground/80">
+            If you or someone you know is experiencing violence, harassment, or discrimination — help is available. Everything shared here is confidential.
+          </p>
+        </div>
+      </section>
+
+      {/* Emergency Contacts */}
+      <section className="py-12 bg-destructive/5">
+        <div className="container">
+          <h2 className="text-2xl font-bold text-center mb-8">Emergency Hotlines</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {hotlines.map((h) => (
+              <Card key={h.name} className="border-destructive/20 shadow-md">
+                <CardContent className="pt-6 text-center space-y-2">
+                  <Phone className="h-6 w-6 mx-auto text-primary" />
+                  <h3 className="font-semibold text-sm">{h.name}</h3>
+                  <p className="text-primary font-bold">{h.number}</p>
+                  <a href={h.url} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary flex items-center justify-center gap-1">
+                    Visit website <ExternalLink className="h-3 w-3" />
+                  </a>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Anonymous Help Form */}
+      <section className="py-12">
+        <div className="container max-w-xl">
+          <Card className="shadow-lg border-none">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl">Anonymous Help Form</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                No personal information required. Your submission is completely anonymous.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <Select value={formData.category} onValueChange={(v) => setFormData((p) => ({ ...p, category: v }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="domestic_violence">Domestic Violence</SelectItem>
+                    <SelectItem value="sexual_assault">Sexual Assault</SelectItem>
+                    <SelectItem value="harassment">Harassment</SelectItem>
+                    <SelectItem value="discrimination">Discrimination</SelectItem>
+                    <SelectItem value="mental_health">Mental Health</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Textarea
+                  placeholder="Tell us what's happening. We're here to help..."
+                  value={formData.message}
+                  onChange={(e) => setFormData((p) => ({ ...p, message: e.target.value }))}
+                  rows={5}
+                />
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Sending..." : "Submit Anonymously"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Resources */}
+      <section className="py-12 bg-muted/50">
+        <div className="container max-w-2xl">
+          <h2 className="text-2xl font-bold text-center mb-8">Support Resources</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {resources.map((r) => (
+              <a key={r.name} href={r.url} target="_blank" rel="noopener noreferrer">
+                <Card className="hover:shadow-md transition-shadow cursor-pointer border-none shadow-sm">
+                  <CardContent className="pt-6 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Heart className="h-5 w-5 text-primary" />
+                      <span className="text-sm font-medium">{r.name}</span>
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  </CardContent>
+                </Card>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    </Layout>
+  );
+};
+
+export default Support;
