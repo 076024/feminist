@@ -56,14 +56,14 @@ const Contact = () => {
                   <Mail className="h-5 w-5 text-primary mt-0.5" />
                   <div>
                     <p className="font-medium">Email</p>
-                    <p className="text-sm text-muted-foreground">hello@feminist.org</p>
+                    <p className="text-sm text-muted-foreground">Suwilanjinachilindi033@gmail.com</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Phone className="h-5 w-5 text-primary mt-0.5" />
                   <div>
                     <p className="font-medium">Phone</p>
-                    <p className="text-sm text-muted-foreground">+1 (800) 799-7233</p>
+                    <p className="text-sm text-muted-foreground">+260 977 572 269</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
