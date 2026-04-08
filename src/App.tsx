@@ -47,6 +47,8 @@ const App = () => (
               <Route path="help-requests" element={<AdminHelpRequests />} />
               <Route path="testimonials" element={<AdminTestimonials />} />
               <Route path="campaigns" element={<AdminCampaigns />} />
+              <Route path="contacts" element={<AdminContacts />} />
+              <Route path="events" element={<AdminEvents />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
