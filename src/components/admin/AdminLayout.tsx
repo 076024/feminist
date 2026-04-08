@@ -7,6 +7,8 @@ import {
   MessageSquare,
   Heart,
   Megaphone,
+  Mail,
+  CalendarDays,
   LogOut,
   ArrowLeft,
 } from "lucide-react";
@@ -17,6 +19,8 @@ const adminNav = [
   { to: "/admin/help-requests", label: "Help Requests", icon: MessageSquare },
   { to: "/admin/testimonials", label: "Testimonials", icon: Heart },
   { to: "/admin/campaigns", label: "Campaigns", icon: Megaphone },
+  { to: "/admin/contacts", label: "Contact Messages", icon: Mail },
+  { to: "/admin/events", label: "Events", icon: CalendarDays },
 ];
 
 const AdminLayout = () => {
