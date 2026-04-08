@@ -20,6 +20,8 @@ import AdminBlog from "./pages/admin/AdminBlog";
 import AdminHelpRequests from "./pages/admin/AdminHelpRequests";
 import AdminTestimonials from "./pages/admin/AdminTestimonials";
 import AdminCampaigns from "./pages/admin/AdminCampaigns";
+import AdminContacts from "./pages/admin/AdminContacts";
+import AdminEvents from "./pages/admin/AdminEvents";
 
 const queryClient = new QueryClient();
 
