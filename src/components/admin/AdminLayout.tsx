@@ -7,6 +7,8 @@ import {
   MessageSquare,
   Heart,
   Megaphone,
+  Mail,
+  CalendarDays,
   LogOut,
   ArrowLeft,
 } from "lucide-react";
