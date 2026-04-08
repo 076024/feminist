@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,20 +6,42 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Calendar, HandHeart, MessageCircle } from "lucide-react";
+import { Users, Calendar, HandHeart, MessageCircle, Quote } from "lucide-react";
 
-const events = [
-  { title: "International Women's Day Rally", date: "March 8, 2025", location: "City Hall Plaza", description: "Join thousands as we march for equality and celebrate women's achievements worldwide." },
-  { title: "Self-Defense Workshop", date: "March 22, 2025", location: "Community Center", description: "Free self-defense class for women and non-binary individuals. No experience needed." },
-  { title: "Feminist Book Club", date: "Every 2nd Saturday", location: "Online (Zoom)", description: "Discuss powerful feminist literature in a supportive, welcoming community." },
-];
+interface Testimonial {
+  id: string;
+  content: string;
+  created_at: string;
+}
+
+interface Event {
+  id: string;
+  title: string;
+  date: string;
+  location: string;
+  description: string;
+}
 
 const Community = () => {
   const { toast } = useToast();
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [storyForm, setStoryForm] = useState({ content: "" });
   const [volunteerForm, setVolunteerForm] = useState({ name: "", email: "", interests: "" });
   const [storyLoading, setStoryLoading] = useState(false);
   const [volunteerLoading, setVolunteerLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [testimonialsRes, eventsRes] = await Promise.all([
+        supabase.from("testimonials").select("*").eq("approved", true).order("created_at", { ascending: false }),
+        supabase.from("events").select("*").order("date", { ascending: true }),
+      ]);
+      setTestimonials((testimonialsRes.data as Testimonial[]) ?? []);
+      setEvents((eventsRes.data as Event[]) ?? []);
+    };
+    fetchData();
+  }, []);
 
   const handleStorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,27 +93,62 @@ const Community = () => {
         </div>
       </section>
 
+      {/* Approved Testimonials */}
+      {testimonials.length > 0 && (
+        <section className="py-12">
+          <div className="container">
+            <div className="flex items-center gap-2 mb-8">
+              <Quote className="h-6 w-6 text-primary" />
+              <h2 className="text-2xl font-bold">Community Stories</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {testimonials.map((t) => (
+                <Card key={t.id} className="border-none shadow-md">
+                  <CardContent className="pt-6">
+                    <p className="text-sm text-muted-foreground italic">"{t.content}"</p>
+                    <p className="text-xs text-muted-foreground mt-4">
+                      {new Date(t.created_at).toLocaleDateString()}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Events */}
-      <section className="py-12">
+      <section className="py-12 bg-muted/30">
         <div className="container">
           <div className="flex items-center gap-2 mb-8">
             <Calendar className="h-6 w-6 text-primary" />
             <h2 className="text-2xl font-bold">Upcoming Events</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {events.map((event) => (
-              <Card key={event.title} className="border-none shadow-md">
-                <CardHeader>
-                  <CardTitle className="text-lg">{event.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <p className="text-sm text-primary font-medium">{event.date}</p>
-                  <p className="text-sm text-muted-foreground">{event.location}</p>
-                  <p className="text-sm text-muted-foreground">{event.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {events.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">No upcoming events. Check back soon!</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {events.map((event) => (
+                <Card key={event.id} className="border-none shadow-md">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{event.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <p className="text-sm text-primary font-medium">
+                      {new Date(event.date).toLocaleDateString(undefined, {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
+                    <p className="text-sm text-muted-foreground">{event.location}</p>
+                    <p className="text-sm text-muted-foreground">{event.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
