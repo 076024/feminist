@@ -1,59 +1,54 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Megaphone, Share2 } from "lucide-react";
 
-const campaigns = [
-  {
-    id: "equal-pay",
-    title: "Equal Pay Now",
-    description: "Demand legislation requiring companies to report and close gender pay gaps. Every woman deserves to earn the same as her male counterpart for equal work.",
-    goal: 10000,
-    current: 7823,
-    status: "active" as const,
-  },
-  {
-    id: "end-gbv",
-    title: "End Gender-Based Violence",
-    description: "Advocate for stronger laws and better support systems for survivors of domestic violence and sexual assault.",
-    goal: 15000,
-    current: 12456,
-    status: "active" as const,
-  },
-  {
-    id: "education-access",
-    title: "Education for Every Girl",
-    description: "Support initiatives to ensure every girl has access to quality education, regardless of where she is born.",
-    goal: 8000,
-    current: 5234,
-    status: "active" as const,
-  },
-];
+interface Campaign {
+  id: string;
+  title: string;
+  description: string;
+  goal: string | null;
+  status: string;
+}
 
 const Campaigns = () => {
   const { toast } = useToast();
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [loading, setLoading] = useState(true);
   const [signingId, setSigningId] = useState<string | null>(null);
   const [petitionForm, setPetitionForm] = useState({ name: "", email: "" });
-  const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchCampaigns = async () => {
+      const { data } = await supabase
+        .from("campaigns")
+        .select("*")
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
+      setCampaigns((data as Campaign[]) ?? []);
+      setLoading(false);
+    };
+    fetchCampaigns();
+  }, []);
 
   const handleSign = async (campaignId: string) => {
     if (!petitionForm.name.trim() || !petitionForm.email.trim()) {
       toast({ title: "Name and email are required", variant: "destructive" });
       return;
     }
-    setLoading(true);
+    setSubmitLoading(true);
     const { error } = await supabase.from("petitions").insert({
       campaign_id: campaignId,
       signer_name: petitionForm.name.trim(),
       signer_email: petitionForm.email.trim(),
     });
-    setLoading(false);
+    setSubmitLoading(false);
     if (error) {
       toast({ title: "Something went wrong", variant: "destructive" });
     } else {
@@ -88,55 +83,59 @@ const Campaigns = () => {
 
       <section className="py-12">
         <div className="container max-w-3xl space-y-8">
-          {campaigns.map((campaign) => (
-            <Card key={campaign.id} className="border-none shadow-lg overflow-hidden">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <Badge variant="default" className="text-xs">Active Campaign</Badge>
-                  <Button variant="ghost" size="sm" onClick={() => handleShare(campaign.title)}>
-                    <Share2 className="h-4 w-4 mr-1" /> Share
-                  </Button>
-                </div>
-                <CardTitle className="text-xl mt-2">{campaign.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">{campaign.description}</p>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium text-primary">{campaign.current.toLocaleString()} signatures</span>
-                    <span className="text-muted-foreground">Goal: {campaign.goal.toLocaleString()}</span>
+          {loading ? (
+            <div className="text-center py-12 text-muted-foreground">Loading campaigns...</div>
+          ) : campaigns.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <p>No active campaigns right now. Check back soon!</p>
+            </div>
+          ) : (
+            campaigns.map((campaign) => (
+              <Card key={campaign.id} className="border-none shadow-lg overflow-hidden">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <Badge variant="default" className="text-xs">Active Campaign</Badge>
+                    <Button variant="ghost" size="sm" onClick={() => handleShare(campaign.title)}>
+                      <Share2 className="h-4 w-4 mr-1" /> Share
+                    </Button>
                   </div>
-                  <Progress value={(campaign.current / campaign.goal) * 100} className="h-2" />
-                </div>
+                  <CardTitle className="text-xl mt-2">{campaign.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">{campaign.description}</p>
+                  {campaign.goal && (
+                    <p className="text-sm font-medium text-primary">Goal: {campaign.goal}</p>
+                  )}
 
-                {signingId === campaign.id ? (
-                  <div className="space-y-3 pt-2 border-t">
-                    <Input
-                      placeholder="Your name"
-                      value={petitionForm.name}
-                      onChange={(e) => setPetitionForm((p) => ({ ...p, name: e.target.value }))}
-                    />
-                    <Input
-                      type="email"
-                      placeholder="Your email"
-                      value={petitionForm.email}
-                      onChange={(e) => setPetitionForm((p) => ({ ...p, email: e.target.value }))}
-                    />
-                    <div className="flex gap-2">
-                      <Button onClick={() => handleSign(campaign.id)} className="flex-1" disabled={loading}>
-                        {loading ? "Signing..." : "Sign Petition"}
-                      </Button>
-                      <Button variant="outline" onClick={() => setSigningId(null)}>Cancel</Button>
+                  {signingId === campaign.id ? (
+                    <div className="space-y-3 pt-2 border-t">
+                      <Input
+                        placeholder="Your name"
+                        value={petitionForm.name}
+                        onChange={(e) => setPetitionForm((p) => ({ ...p, name: e.target.value }))}
+                      />
+                      <Input
+                        type="email"
+                        placeholder="Your email"
+                        value={petitionForm.email}
+                        onChange={(e) => setPetitionForm((p) => ({ ...p, email: e.target.value }))}
+                      />
+                      <div className="flex gap-2">
+                        <Button onClick={() => handleSign(campaign.id)} className="flex-1" disabled={submitLoading}>
+                          {submitLoading ? "Signing..." : "Sign Petition"}
+                        </Button>
+                        <Button variant="outline" onClick={() => setSigningId(null)}>Cancel</Button>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <Button onClick={() => setSigningId(campaign.id)} className="w-full">
-                    Sign This Petition
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                  ) : (
+                    <Button onClick={() => setSigningId(campaign.id)} className="w-full">
+                      Sign This Petition
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </section>
     </Layout>
