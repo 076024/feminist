@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { motion } from "framer-motion";
 
 interface BlogPost {
   id: string;
@@ -14,6 +16,11 @@ interface BlogPost {
   author: string;
   created_at: string;
 }
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.05, duration: 0.4 } }),
+};
 
 const Awareness = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -46,18 +53,22 @@ const Awareness = () => {
 
   return (
     <Layout>
-      <section className="bg-muted/50 py-16">
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-muted/50 py-16"
+      >
         <div className="container max-w-3xl text-center space-y-4">
           <h1 className="text-4xl md:text-5xl font-bold">Awareness & Education</h1>
           <p className="text-lg text-muted-foreground">
             Knowledge is power. Explore articles on sexual violence awareness, women's rights, and gender equality.
           </p>
         </div>
-      </section>
+      </motion.section>
 
       <section className="py-12">
         <div className="container">
-          {/* Filters */}
           <div className="flex flex-col md:flex-row gap-4 mb-8 items-start md:items-center justify-between">
             <div className="flex flex-wrap gap-2">
               {categories.map((cat) => (
@@ -86,26 +97,35 @@ const Awareness = () => {
             <div className="text-center py-12 text-muted-foreground">Loading articles...</div>
           ) : (
             <>
-              {/* Articles Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filtered.map((article) => (
-                  <Card key={article.id} className="group hover:shadow-lg transition-shadow border-none shadow-md">
-                    <CardHeader>
-                      <div className="flex items-center justify-between mb-2">
-                        <Badge variant="secondary" className="text-xs">{article.category}</Badge>
-                        <span className="text-xs text-muted-foreground">By {article.author}</span>
-                      </div>
-                      <CardTitle className="text-lg group-hover:text-primary transition-colors leading-snug">
-                        {article.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground line-clamp-3">{article.content}</p>
-                      <p className="text-xs text-muted-foreground mt-4">
-                        {new Date(article.created_at).toLocaleDateString()}
-                      </p>
-                    </CardContent>
-                  </Card>
+                {filtered.map((article, i) => (
+                  <motion.div
+                    key={article.id}
+                    custom={i}
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeUp}
+                  >
+                    <Link to={`/awareness/${article.id}`}>
+                      <Card className="group hover:shadow-lg transition-shadow border-none shadow-md h-full cursor-pointer">
+                        <CardHeader>
+                          <div className="flex items-center justify-between mb-2">
+                            <Badge variant="secondary" className="text-xs">{article.category}</Badge>
+                            <span className="text-xs text-muted-foreground">By {article.author}</span>
+                          </div>
+                          <CardTitle className="text-lg group-hover:text-primary transition-colors leading-snug">
+                            {article.title}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-muted-foreground line-clamp-3">{article.content}</p>
+                          <p className="text-xs text-muted-foreground mt-4">
+                            {new Date(article.created_at).toLocaleDateString()}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
                 ))}
               </div>
 
