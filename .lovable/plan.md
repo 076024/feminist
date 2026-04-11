@@ -1,71 +1,53 @@
 
-# Feminism Awareness & Support Platform
 
-## Design System
-- **Colors**: Purple (#7C3AED primary), soft pink (#F9A8D4 accent), white backgrounds, dark text
-- **Typography**: Clean, modern sans-serif
-- **Style**: Professional, empowering, accessible
+# Plan: Build All Remaining Features
 
-## Pages to Build
+## Summary
+Add 6 remaining features: individual blog post pages, admin volunteers section, admin petitions section, social share buttons on campaigns, framer-motion animations, and mobile-responsive admin sidebar.
 
-### 1. Home Page
-- Hero section with headline "Equality is a Right, Not a Privilege" and empowering imagery
-- Key statistics section (gender pay gap, violence stats, representation)
-- CTA buttons: "Get Help", "Join the Movement", "Learn More"
-- Featured campaigns preview
-- Testimonials/impact section
+## Features
 
-### 2. About Page
-- What is feminism — clear, accessible explanation
-- History timeline of the feminist movement
-- Mission, vision, and core values
+### 1. Individual Blog Post Pages
+- Create `src/pages/BlogPost.tsx` — full article view fetching by ID from `blog_posts`
+- Add route `/awareness/:id` in `App.tsx`
+- Update article cards in `Awareness.tsx` to link to `/awareness/{id}`
 
-### 3. Awareness & Education (Blog)
-- Blog listing page with categories (Sexual Violence, Women's Rights, Gender Equality)
-- Individual article pages
-- Blog posts stored in database, managed via admin panel
+### 2. Admin Volunteers Section
+- Create `src/pages/admin/AdminVolunteers.tsx` — table view of volunteer signups from `volunteers` table (name, email, interests, date)
+- Add route and sidebar nav link in `App.tsx` and `AdminLayout.tsx`
 
-### 4. Support & Help Section
-- Emergency contacts and hotline numbers
-- Anonymous help/reporting form (saves to database securely)
-- Links to shelters and support organizations
-- Mental health resources
+### 3. Admin Petitions Section
+- Create `src/pages/admin/AdminPetitions.tsx` — table showing petition signatures from `petitions` table, grouped or filterable by campaign
+- Add RLS policy so admins can SELECT from `petitions` table (currently missing admin read policy)
+- Add route and sidebar nav link
 
-### 5. Community Section
-- Anonymous stories/testimonials (submitted via form, stored in DB)
-- Events listing
-- Volunteer signup form
+### 4. Social Share Buttons on Campaigns
+- Add share buttons (Twitter/X, Facebook, WhatsApp) to each campaign card in `Campaigns.tsx` alongside the existing generic share button
 
-### 6. Campaigns & Advocacy
-- Active campaigns with descriptions and progress
-- Petition signing (name + email saved to DB)
-- Social media share buttons
+### 5. Framer-Motion Animations
+- Install `framer-motion`
+- Add fade-in / slide-up animations on page hero sections and card grids across Index, About, Awareness, Support, Community, Campaigns pages
+- Add hover scale effects on interactive cards
 
-### 7. Contact Page
-- Contact form (saves to database)
-- Organization email and phone
-- Social media links
+### 6. Mobile-Responsive Admin Sidebar
+- Convert admin sidebar to a collapsible sheet/drawer on mobile using existing Sheet component
+- Add hamburger menu trigger visible on small screens
 
-## Backend (Lovable Cloud)
+## Database Changes
+- Migration: Add RLS policy for admin SELECT on `petitions` table
 
-### Database Tables
-- **blog_posts** — title, content, category, image_url, published_at, author
-- **help_requests** — anonymous submissions (no user_id required), message, category, status, created_at
-- **testimonials** — anonymous stories, approved flag for moderation
-- **events** — title, description, date, location
-- **volunteers** — name, email, interests
-- **petitions** — campaign_id, signer_name, signer_email
-- **campaigns** — title, description, goal, status
-- **contacts** — form submissions (name, email, message)
+## Files Created
+- `src/pages/BlogPost.tsx`
+- `src/pages/admin/AdminVolunteers.tsx`
+- `src/pages/admin/AdminPetitions.tsx`
 
-### Authentication & Admin
-- Admin login for content management
-- Admin panel to manage blog posts, review help requests, moderate testimonials, manage campaigns
-- Role-based access using user_roles table
+## Files Modified
+- `src/App.tsx` — 3 new routes
+- `src/components/admin/AdminLayout.tsx` — 2 new nav items + mobile responsive sidebar
+- `src/pages/Awareness.tsx` — link cards to individual posts
+- `src/pages/Campaigns.tsx` — social share buttons
+- `src/pages/Index.tsx` — framer-motion animations
+- `src/pages/About.tsx` — framer-motion animations
+- `src/pages/Support.tsx` — framer-motion animations
+- `src/pages/Community.tsx` — framer-motion animations
 
-## Key Features
-- Fully responsive (mobile-first)
-- Smooth navigation with consistent header/footer
-- Search functionality for blog content
-- Quick-exit button on Support page (safety feature for users in danger)
-- Accessible design (proper contrast, alt text, keyboard navigation)
