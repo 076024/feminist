@@ -1,6 +1,7 @@
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Target, Eye, Heart } from "lucide-react";
+import { motion } from "framer-motion";
 
 const timeline = [
   { year: "1848", event: "Seneca Falls Convention — the first women's rights convention in the U.S." },
@@ -18,69 +19,99 @@ const values = [
   { icon: Heart, title: "Our Values", description: "Intersectionality, courage, compassion, solidarity, transparency, and an unwavering commitment to justice for all." },
 ];
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.4 } }),
+};
+
 const About = () => {
   return (
     <Layout>
-      {/* Hero */}
-      <section className="bg-muted/50 py-16 md:py-24">
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-muted/50 py-16 md:py-24"
+      >
         <div className="container max-w-3xl text-center space-y-4">
           <h1 className="text-4xl md:text-5xl font-bold">About Feminism</h1>
           <p className="text-lg text-muted-foreground">
             Feminism is the belief in and advocacy for the political, economic, and social equality of all genders. It is not about superiority — it's about justice.
           </p>
         </div>
-      </section>
+      </motion.section>
 
-      {/* What is Feminism */}
       <section className="py-16">
-        <div className="container max-w-3xl space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="container max-w-3xl space-y-6"
+        >
           <h2 className="text-3xl font-bold text-center">What is Feminism?</h2>
           <div className="prose prose-lg mx-auto text-muted-foreground space-y-4">
-            <p>
-              At its core, feminism is about equality. It challenges the systems and structures that have historically denied women their rights, their safety, and their autonomy. Feminism recognizes that gender-based oppression intersects with race, class, sexuality, disability, and other identities.
-            </p>
-            <p>
-              From the suffragettes who fought for the vote to modern activists challenging workplace harassment, feminism has always been about expanding freedom and dignity for everyone. It benefits not just women, but all people, by dismantling harmful stereotypes and creating fairer societies.
-            </p>
-            <p>
-              Feminism is not a single movement — it encompasses diverse perspectives, from liberal and radical feminism to intersectional, ecofeminist, and postcolonial frameworks. What unites them is a shared commitment to ending gender-based discrimination and violence.
-            </p>
+            <p>At its core, feminism is about equality. It challenges the systems and structures that have historically denied women their rights, their safety, and their autonomy. Feminism recognizes that gender-based oppression intersects with race, class, sexuality, disability, and other identities.</p>
+            <p>From the suffragettes who fought for the vote to modern activists challenging workplace harassment, feminism has always been about expanding freedom and dignity for everyone. It benefits not just women, but all people, by dismantling harmful stereotypes and creating fairer societies.</p>
+            <p>Feminism is not a single movement — it encompasses diverse perspectives, from liberal and radical feminism to intersectional, ecofeminist, and postcolonial frameworks. What unites them is a shared commitment to ending gender-based discrimination and violence.</p>
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* Mission, Vision, Values */}
       <section className="py-16 bg-muted/50">
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {values.map((v) => (
-              <Card key={v.title} className="border-none shadow-md">
-                <CardContent className="pt-6 text-center space-y-3">
-                  <div className="mx-auto h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <v.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="font-heading font-semibold text-xl">{v.title}</h3>
-                  <p className="text-sm text-muted-foreground">{v.description}</p>
-                </CardContent>
-              </Card>
+            {values.map((v, i) => (
+              <motion.div
+                key={v.title}
+                custom={i}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                whileHover={{ scale: 1.03 }}
+              >
+                <Card className="border-none shadow-md h-full">
+                  <CardContent className="pt-6 text-center space-y-3">
+                    <div className="mx-auto h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <v.icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <h3 className="font-heading font-semibold text-xl">{v.title}</h3>
+                    <p className="text-sm text-muted-foreground">{v.description}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Timeline */}
       <section className="py-16">
         <div className="container max-w-2xl">
-          <h2 className="text-3xl font-bold text-center mb-10">A Brief History</h2>
+          <motion.h2
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-3xl font-bold text-center mb-10"
+          >
+            A Brief History
+          </motion.h2>
           <div className="relative">
             <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-primary/20" />
             <div className="space-y-8">
-              {timeline.map((item) => (
-                <div key={item.year} className="relative pl-12">
+              {timeline.map((item, i) => (
+                <motion.div
+                  key={item.year}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08, duration: 0.4 }}
+                  className="relative pl-12"
+                >
                   <div className="absolute left-2.5 top-1.5 h-3 w-3 rounded-full bg-primary ring-4 ring-background" />
                   <p className="font-heading font-bold text-primary">{item.year}</p>
                   <p className="text-sm text-muted-foreground mt-1">{item.event}</p>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>

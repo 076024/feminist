@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Awareness from "./pages/Awareness";
+import BlogPostPage from "./pages/BlogPost";
 import Support from "./pages/Support";
 import Community from "./pages/Community";
 import Campaigns from "./pages/Campaigns";
@@ -22,6 +23,8 @@ import AdminTestimonials from "./pages/admin/AdminTestimonials";
 import AdminCampaigns from "./pages/admin/AdminCampaigns";
 import AdminContacts from "./pages/admin/AdminContacts";
 import AdminEvents from "./pages/admin/AdminEvents";
+import AdminVolunteers from "./pages/admin/AdminVolunteers";
+import AdminPetitions from "./pages/admin/AdminPetitions";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +39,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
             <Route path="/awareness" element={<Awareness />} />
+            <Route path="/awareness/:id" element={<BlogPostPage />} />
             <Route path="/support" element={<Support />} />
             <Route path="/community" element={<Community />} />
             <Route path="/campaigns" element={<Campaigns />} />
@@ -49,6 +53,8 @@ const App = () => (
               <Route path="campaigns" element={<AdminCampaigns />} />
               <Route path="contacts" element={<AdminContacts />} />
               <Route path="events" element={<AdminEvents />} />
+              <Route path="volunteers" element={<AdminVolunteers />} />
+              <Route path="petitions" element={<AdminPetitions />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
