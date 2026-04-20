@@ -41,34 +41,97 @@ const BlogPostPage = () => {
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
 
+  const loadImageAsDataUrl = (url: string): Promise<{ dataUrl: string; width: number; height: number; format: string }> =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("Canvas not supported"));
+        ctx.drawImage(img, 0, 0);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+        resolve({ dataUrl, width: img.naturalWidth, height: img.naturalHeight, format: "JPEG" });
+      };
+      img.onerror = () => reject(new Error("Image load failed"));
+      img.src = url;
+    });
+
   const handleDownload = async () => {
     if (!post) return;
     try {
-      // Build a plain-text version of the article
-      const text = [
-        post.title,
-        "",
-        `By ${post.author} \u2022 ${new Date(post.created_at).toLocaleDateString()}`,
-        `Category: ${post.category}`,
-        "",
-        post.content,
-        "",
-        `Read online: ${shareUrl}`,
-      ].join("\n");
+      const doc = new jsPDF({ unit: "pt", format: "a4" });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 48;
+      const contentWidth = pageWidth - margin * 2;
+      let y = margin;
 
-      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
+      // Title
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      const titleLines = doc.splitTextToSize(post.title, contentWidth);
+      doc.text(titleLines, margin, y);
+      y += titleLines.length * 26 + 6;
+
+      // Meta line
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(120);
+      const meta = `By ${post.author}  \u2022  ${new Date(post.created_at).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}  \u2022  ${post.category}`;
+      doc.text(meta, margin, y);
+      y += 18;
+      doc.setDrawColor(220);
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 16;
+      doc.setTextColor(40);
+
+      // Image
+      if (post.image_url) {
+        try {
+          const { dataUrl, width, height, format } = await loadImageAsDataUrl(post.image_url);
+          const ratio = height / width;
+          const imgWidth = contentWidth;
+          const imgHeight = Math.min(imgWidth * ratio, 280);
+          if (y + imgHeight > pageHeight - margin) {
+            doc.addPage();
+            y = margin;
+          }
+          doc.addImage(dataUrl, format, margin, y, imgWidth, imgHeight, undefined, "FAST");
+          y += imgHeight + 18;
+        } catch {
+          // skip image if it fails to load
+        }
+      }
+
+      // Body
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      const bodyLines = doc.splitTextToSize(post.content, contentWidth);
+      const lineHeight = 16;
+      for (const line of bodyLines) {
+        if (y + lineHeight > pageHeight - margin) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.text(line, margin, y);
+        y += lineHeight;
+      }
+
+      // Footer link
+      if (y + 24 > pageHeight - margin) { doc.addPage(); y = margin; }
+      y += 12;
+      doc.setFontSize(9);
+      doc.setTextColor(120);
+      doc.text(`Read online: ${shareUrl}`, margin, y);
+
       const safeName = post.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase().slice(0, 60) || "article";
-      a.href = url;
-      a.download = `${safeName}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      toast.success("Article downloaded");
+      doc.save(`${safeName}.pdf`);
+      toast.success("PDF downloaded");
     } catch {
-      toast.error("Could not download article");
+      toast.error("Could not generate PDF");
     }
   };
 
