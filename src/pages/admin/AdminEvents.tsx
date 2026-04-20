@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, CalendarDays } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarDays, Upload, X, ImageIcon } from "lucide-react";
 
 interface Event {
   id: string;
@@ -16,6 +16,7 @@ interface Event {
   description: string;
   date: string;
   location: string;
+  image_url: string | null;
   created_at: string;
 }
 
@@ -24,7 +25,9 @@ const AdminEvents = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Event | null>(null);
-  const [form, setForm] = useState({ title: "", description: "", date: "", location: "" });
+  const [form, setForm] = useState({ title: "", description: "", date: "", location: "", image_url: "" });
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchEvents = async () => {
     const { data } = await supabase.from("events").select("*").order("date", { ascending: true });
@@ -35,16 +38,37 @@ const AdminEvents = () => {
   useEffect(() => { fetchEvents(); }, []);
 
   const resetForm = () => {
-    setForm({ title: "", description: "", date: "", location: "" });
+    setForm({ title: "", description: "", date: "", location: "", image_url: "" });
     setEditing(null);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const fileName = `events/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("blog-images").upload(fileName, file);
+    if (error) { toast.error("Upload failed"); setUploading(false); return; }
+    const { data } = supabase.storage.from("blog-images").getPublicUrl(fileName);
+    setForm((f) => ({ ...f, image_url: data.publicUrl }));
+    setUploading(false);
+    toast.success("Image uploaded");
   };
 
   const handleSave = async () => {
     if (!form.title.trim() || !form.description.trim() || !form.date || !form.location.trim()) {
-      toast.error("All fields are required");
+      toast.error("Title, description, date and location are required");
       return;
     }
-    const payload = { ...form, date: new Date(form.date).toISOString() };
+    const payload = {
+      title: form.title,
+      description: form.description,
+      location: form.location,
+      date: new Date(form.date).toISOString(),
+      image_url: form.image_url || null,
+    };
     if (editing) {
       const { error } = await supabase.from("events").update(payload).eq("id", editing.id);
       if (error) { toast.error("Failed to update"); return; }
@@ -66,6 +90,7 @@ const AdminEvents = () => {
       description: e.description,
       date: new Date(e.date).toISOString().slice(0, 16),
       location: e.location,
+      image_url: e.image_url ?? "",
     });
     setDialogOpen(true);
   };
@@ -88,7 +113,7 @@ const AdminEvents = () => {
           <DialogTrigger asChild>
             <Button><Plus className="h-4 w-4 mr-2" /> New Event</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editing ? "Edit Event" : "New Event"}</DialogTitle>
             </DialogHeader>
@@ -109,6 +134,29 @@ const AdminEvents = () => {
                 <Label>Description</Label>
                 <Textarea rows={4} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               </div>
+              <div className="space-y-2">
+                <Label>Cover Image (optional)</Label>
+                {form.image_url ? (
+                  <div className="relative">
+                    <img src={form.image_url} alt="Cover" className="w-full h-40 object-cover rounded-md border" />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-7 w-7"
+                      onClick={() => setForm((f) => ({ ...f, image_url: "" }))}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="w-full">
+                    <Upload className="h-4 w-4 mr-2" />
+                    {uploading ? "Uploading..." : "Upload image"}
+                  </Button>
+                )}
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              </div>
               <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"}</Button>
             </div>
           </DialogContent>
@@ -120,6 +168,7 @@ const AdminEvents = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-16">Image</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Location</TableHead>
@@ -128,11 +177,20 @@ const AdminEvents = () => {
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
               ) : events.length === 0 ? (
-                <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No events yet</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No events yet</TableCell></TableRow>
               ) : events.map((ev) => (
                 <TableRow key={ev.id}>
+                  <TableCell>
+                    {ev.image_url ? (
+                      <img src={ev.image_url} alt={ev.title} className="h-10 w-10 rounded object-cover" />
+                    ) : (
+                      <div className="h-10 w-10 rounded bg-muted flex items-center justify-center">
+                        <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell className="font-medium">{ev.title}</TableCell>
                   <TableCell className="whitespace-nowrap">
                     {new Date(ev.date).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" })}

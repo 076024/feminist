@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, X, ImageIcon } from "lucide-react";
 
 interface Campaign {
   id: string;
@@ -17,6 +17,7 @@ interface Campaign {
   description: string;
   goal: string | null;
   status: string;
+  image_url: string | null;
   created_at: string;
 }
 
@@ -25,7 +26,9 @@ const AdminCampaigns = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Campaign | null>(null);
-  const [form, setForm] = useState({ title: "", description: "", goal: "", status: "active" });
+  const [form, setForm] = useState({ title: "", description: "", goal: "", status: "active", image_url: "" });
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchCampaigns = async () => {
     const { data } = await supabase.from("campaigns").select("*").order("created_at", { ascending: false });
@@ -36,8 +39,23 @@ const AdminCampaigns = () => {
   useEffect(() => { fetchCampaigns(); }, []);
 
   const resetForm = () => {
-    setForm({ title: "", description: "", goal: "", status: "active" });
+    setForm({ title: "", description: "", goal: "", status: "active", image_url: "" });
     setEditing(null);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const fileName = `campaigns/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("blog-images").upload(fileName, file);
+    if (error) { toast.error("Upload failed"); setUploading(false); return; }
+    const { data } = supabase.storage.from("blog-images").getPublicUrl(fileName);
+    setForm((f) => ({ ...f, image_url: data.publicUrl }));
+    setUploading(false);
+    toast.success("Image uploaded");
   };
 
   const handleSave = async () => {
@@ -45,7 +63,7 @@ const AdminCampaigns = () => {
       toast.error("Title and description are required");
       return;
     }
-    const payload = { ...form, goal: form.goal || null };
+    const payload = { ...form, goal: form.goal || null, image_url: form.image_url || null };
     if (editing) {
       const { error } = await supabase.from("campaigns").update(payload).eq("id", editing.id);
       if (error) { toast.error("Failed to update"); return; }
@@ -62,7 +80,7 @@ const AdminCampaigns = () => {
 
   const handleEdit = (c: Campaign) => {
     setEditing(c);
-    setForm({ title: c.title, description: c.description, goal: c.goal ?? "", status: c.status });
+    setForm({ title: c.title, description: c.description, goal: c.goal ?? "", status: c.status, image_url: c.image_url ?? "" });
     setDialogOpen(true);
   };
 
@@ -87,7 +105,7 @@ const AdminCampaigns = () => {
           <DialogTrigger asChild>
             <Button><Plus className="h-4 w-4 mr-2" /> New Campaign</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editing ? "Edit Campaign" : "New Campaign"}</DialogTitle>
             </DialogHeader>
@@ -98,7 +116,30 @@ const AdminCampaigns = () => {
               </div>
               <div className="space-y-2">
                 <Label>Description</Label>
-                <Textarea rows={4} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+                <Textarea rows={5} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Cover Image (optional)</Label>
+                {form.image_url ? (
+                  <div className="relative">
+                    <img src={form.image_url} alt="Cover" className="w-full h-40 object-cover rounded-md border" />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-7 w-7"
+                      onClick={() => setForm((f) => ({ ...f, image_url: "" }))}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="w-full">
+                    <Upload className="h-4 w-4 mr-2" />
+                    {uploading ? "Uploading..." : "Upload image"}
+                  </Button>
+                )}
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
               </div>
               <div className="space-y-2">
                 <Label>Goal (optional)</Label>
@@ -126,6 +167,7 @@ const AdminCampaigns = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-16">Image</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Goal</TableHead>
                 <TableHead>Status</TableHead>
@@ -135,11 +177,20 @@ const AdminCampaigns = () => {
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
               ) : campaigns.length === 0 ? (
-                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No campaigns yet</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No campaigns yet</TableCell></TableRow>
               ) : campaigns.map((c) => (
                 <TableRow key={c.id}>
+                  <TableCell>
+                    {c.image_url ? (
+                      <img src={c.image_url} alt={c.title} className="h-10 w-10 rounded object-cover" />
+                    ) : (
+                      <div className="h-10 w-10 rounded bg-muted flex items-center justify-center">
+                        <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell className="font-medium">{c.title}</TableCell>
                   <TableCell>{c.goal || "—"}</TableCell>
                   <TableCell>
