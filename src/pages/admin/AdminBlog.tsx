@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, X } from "lucide-react";
 
 interface BlogPost {
   id: string;
@@ -18,18 +18,29 @@ interface BlogPost {
   content: string;
   category: string;
   author: string;
+  image_url: string | null;
   published: boolean;
   created_at: string;
 }
 
 const categories = ["Gender Equality", "Sexual Violence", "Women's Rights", "Intersectionality", "General"];
 
+const emptyForm = {
+  title: "",
+  content: "",
+  category: "General",
+  author: "Admin",
+  published: false,
+  image_url: "" as string | null,
+};
+
 const AdminBlog = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<BlogPost | null>(null);
-  const [form, setForm] = useState({ title: "", content: "", category: "General", author: "Admin", published: false });
+  const [form, setForm] = useState(emptyForm);
+  const [uploading, setUploading] = useState(false);
 
   const fetchPosts = async () => {
     const { data } = await supabase.from("blog_posts").select("*").order("created_at", { ascending: false });
@@ -40,8 +51,32 @@ const AdminBlog = () => {
   useEffect(() => { fetchPosts(); }, []);
 
   const resetForm = () => {
-    setForm({ title: "", content: "", category: "General", author: "Admin", published: false });
+    setForm(emptyForm);
     setEditing(null);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be smaller than 5MB");
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const fileName = `${crypto.randomUUID()}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from("blog-images")
+      .upload(fileName, file, { cacheControl: "3600", upsert: false });
+    if (uploadError) {
+      toast.error("Upload failed");
+      setUploading(false);
+      return;
+    }
+    const { data } = supabase.storage.from("blog-images").getPublicUrl(fileName);
+    setForm((f) => ({ ...f, image_url: data.publicUrl }));
+    setUploading(false);
+    toast.success("Image uploaded");
   };
 
   const handleSave = async () => {
@@ -49,12 +84,20 @@ const AdminBlog = () => {
       toast.error("Title and content are required");
       return;
     }
+    const payload = {
+      title: form.title,
+      content: form.content,
+      category: form.category,
+      author: form.author,
+      published: form.published,
+      image_url: form.image_url || null,
+    };
     if (editing) {
-      const { error } = await supabase.from("blog_posts").update(form).eq("id", editing.id);
+      const { error } = await supabase.from("blog_posts").update(payload).eq("id", editing.id);
       if (error) { toast.error("Failed to update"); return; }
       toast.success("Post updated");
     } else {
-      const { error } = await supabase.from("blog_posts").insert(form);
+      const { error } = await supabase.from("blog_posts").insert(payload);
       if (error) { toast.error("Failed to create"); return; }
       toast.success("Post created");
     }
@@ -65,7 +108,14 @@ const AdminBlog = () => {
 
   const handleEdit = (post: BlogPost) => {
     setEditing(post);
-    setForm({ title: post.title, content: post.content, category: post.category, author: post.author, published: post.published });
+    setForm({
+      title: post.title,
+      content: post.content,
+      category: post.category,
+      author: post.author,
+      published: post.published,
+      image_url: post.image_url ?? "",
+    });
     setDialogOpen(true);
   };
 
@@ -106,6 +156,39 @@ const AdminBlog = () => {
                 <Label>Author</Label>
                 <Input value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} />
               </div>
+
+              <div className="space-y-2">
+                <Label>Article Image (optional)</Label>
+                {form.image_url ? (
+                  <div className="relative">
+                    <img src={form.image_url} alt="Preview" className="w-full rounded-md max-h-64 object-cover" />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={() => setForm({ ...form, image_url: "" })}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-md p-6 cursor-pointer hover:bg-muted/50 transition-colors">
+                    <Upload className="h-6 w-6 text-muted-foreground mb-2" />
+                    <span className="text-sm text-muted-foreground">
+                      {uploading ? "Uploading..." : "Click to upload an image (max 5MB)"}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                      disabled={uploading}
+                    />
+                  </label>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <Label>Content</Label>
                 <Textarea rows={10} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} />
@@ -114,7 +197,9 @@ const AdminBlog = () => {
                 <Switch checked={form.published} onCheckedChange={(v) => setForm({ ...form, published: v })} />
                 <Label>Published</Label>
               </div>
-              <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"}</Button>
+              <Button onClick={handleSave} className="w-full" disabled={uploading}>
+                {editing ? "Update" : "Create"}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
