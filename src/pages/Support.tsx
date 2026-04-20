@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Phone, ExternalLink, Heart, AlertTriangle } from "lucide-react";
+import { Shield, Phone, ExternalLink, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 
 const hotlines = [
@@ -33,9 +33,6 @@ const Support = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ message: "", category: "" });
 
-  const handleQuickExit = () => {
-    window.location.replace("https://www.google.com");
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,12 +58,6 @@ const Support = () => {
 
   return (
     <Layout>
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button onClick={handleQuickExit} variant="destructive" size="lg" className="shadow-xl font-bold">
-          <AlertTriangle className="h-4 w-4 mr-1" />
-          Quick Exit
-        </Button>
-      </div>
 
       <motion.section
         initial={{ opacity: 0, y: 20 }}
