@@ -157,7 +157,14 @@ const Community = () => {
                   variants={fadeUp}
                   whileHover={{ scale: 1.02 }}
                 >
-                  <Card className="border-none shadow-md h-full">
+                  <Card className="border-none shadow-md h-full overflow-hidden">
+                    {event.image_url && (
+                      <img
+                        src={event.image_url}
+                        alt={event.title}
+                        className="w-full h-40 object-cover"
+                      />
+                    )}
                     <CardHeader>
                       <CardTitle className="text-lg">{event.title}</CardTitle>
                     </CardHeader>
