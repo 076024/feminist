@@ -4,8 +4,9 @@ import Layout from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download, Share2, Link as LinkIcon, Facebook, Twitter, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 interface BlogPost {
   id: string;
@@ -36,6 +37,85 @@ const BlogPostPage = () => {
     };
     fetchPost();
   }, [id]);
+
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+
+  const handleDownload = async () => {
+    if (!post) return;
+    try {
+      // Build a plain-text version of the article
+      const text = [
+        post.title,
+        "",
+        `By ${post.author} \u2022 ${new Date(post.created_at).toLocaleDateString()}`,
+        `Category: ${post.category}`,
+        "",
+        post.content,
+        "",
+        `Read online: ${shareUrl}`,
+      ].join("\n");
+
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const safeName = post.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase().slice(0, 60) || "article";
+      a.href = url;
+      a.download = `${safeName}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("Article downloaded");
+    } catch {
+      toast.error("Could not download article");
+    }
+  };
+
+  const handleDownloadImage = async () => {
+    if (!post?.image_url) return;
+    try {
+      const res = await fetch(post.image_url);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const ext = blob.type.split("/")[1] || "jpg";
+      const safeName = post.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase().slice(0, 60) || "image";
+      a.href = url;
+      a.download = `${safeName}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("Image downloaded");
+    } catch {
+      toast.error("Could not download image");
+    }
+  };
+
+  const shareText = post ? `${post.title} \u2014 ${shareUrl}` : "";
+
+  const handleNativeShare = async () => {
+    if (!post) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: post.title, text: post.title, url: shareUrl });
+      } catch {
+        // user cancelled
+      }
+    } else {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Link copied to clipboard");
+    }
+  };
+
+  const handleCopyLink = async () => {
+    await navigator.clipboard.writeText(shareUrl);
+    toast.success("Link copied to clipboard");
+  };
+
+  const openShare = (url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer,width=600,height=500");
+  };
 
   if (loading) {
     return (
@@ -71,7 +151,7 @@ const BlogPostPage = () => {
         </Link>
 
         <div className="space-y-4 mb-8">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <Badge variant="secondary">{post.category}</Badge>
             <span className="text-sm text-muted-foreground">By {post.author}</span>
             <span className="text-sm text-muted-foreground">
@@ -92,6 +172,50 @@ const BlogPostPage = () => {
             className="w-full rounded-lg mb-8 object-cover max-h-96"
           />
         )}
+
+        {/* Action toolbar */}
+        <div className="flex flex-wrap items-center gap-2 mb-8 pb-6 border-b">
+          <Button variant="outline" size="sm" onClick={handleDownload}>
+            <Download className="h-4 w-4 mr-2" /> Download article
+          </Button>
+          {post.image_url && (
+            <Button variant="outline" size="sm" onClick={handleDownloadImage}>
+              <Download className="h-4 w-4 mr-2" /> Download image
+            </Button>
+          )}
+          <div className="flex items-center gap-1 ml-auto">
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Share on WhatsApp"
+              onClick={() => openShare(`https://wa.me/?text=${encodeURIComponent(shareText)}`)}
+            >
+              <MessageCircle className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Share on Facebook"
+              onClick={() => openShare(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`)}
+            >
+              <Facebook className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Share on X"
+              onClick={() => openShare(`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(shareUrl)}`)}
+            >
+              <Twitter className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" title="Copy link" onClick={handleCopyLink}>
+              <LinkIcon className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" title="Share" onClick={handleNativeShare}>
+              <Share2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
 
         <div className="prose prose-lg max-w-none text-muted-foreground whitespace-pre-wrap">
           {post.content}
