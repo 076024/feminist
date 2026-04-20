@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Heart, Mail, Phone } from "lucide-react";
+import logo from "@/assets/logo.jpg";
 
 const Footer = () => {
   return (
@@ -9,9 +10,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-heading font-bold text-sm">F</span>
-              </div>
+              <img src={logo} alt="Feminist logo" className="h-10 w-10 rounded-md object-cover" />
               <span className="font-heading text-lg font-bold">Feminist</span>
             </div>
             <p className="text-sm text-muted-foreground">
