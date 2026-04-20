@@ -110,6 +110,13 @@ const Campaigns = () => {
                 transition={{ delay: i * 0.1, duration: 0.4 }}
               >
                 <Card className="border-none shadow-lg overflow-hidden">
+                  {campaign.image_url && (
+                    <img
+                      src={campaign.image_url}
+                      alt={campaign.title}
+                      className="w-full h-56 object-cover"
+                    />
+                  )}
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <Badge variant="default" className="text-xs">Active Campaign</Badge>
