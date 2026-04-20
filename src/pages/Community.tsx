@@ -21,6 +21,7 @@ interface Event {
   date: string;
   location: string;
   description: string;
+  image_url: string | null;
 }
 
 const fadeUp = {
