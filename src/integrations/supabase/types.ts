@@ -56,6 +56,7 @@ export type Database = {
           description: string
           goal: string | null
           id: string
+          image_url: string | null
           status: string
           title: string
           updated_at: string
@@ -65,6 +66,7 @@ export type Database = {
           description: string
           goal?: string | null
           id?: string
+          image_url?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -74,6 +76,7 @@ export type Database = {
           description?: string
           goal?: string | null
           id?: string
+          image_url?: string | null
           status?: string
           title?: string
           updated_at?: string
@@ -110,6 +113,7 @@ export type Database = {
           date: string
           description: string
           id: string
+          image_url: string | null
           location: string
           title: string
         }
@@ -118,6 +122,7 @@ export type Database = {
           date: string
           description: string
           id?: string
+          image_url?: string | null
           location: string
           title: string
         }
@@ -126,6 +131,7 @@ export type Database = {
           date?: string
           description?: string
           id?: string
+          image_url?: string | null
           location?: string
           title?: string
         }
