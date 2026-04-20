@@ -15,6 +15,7 @@ interface Campaign {
   description: string;
   goal: string | null;
   status: string;
+  image_url: string | null;
 }
 
 const Campaigns = () => {
