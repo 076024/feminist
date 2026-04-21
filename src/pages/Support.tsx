@@ -93,12 +93,22 @@ const Support = () => {
                 viewport={{ once: true }}
                 variants={fadeUp}
               >
-                <Card className="border-destructive/20 shadow-md h-full">
+                <Card
+                  className="border-destructive/20 shadow-md h-full cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => setContactOpen({ name: h.name, number: h.local })}
+                >
                   <CardContent className="pt-6 text-center space-y-2">
                     <Phone className="h-6 w-6 mx-auto text-primary" />
                     <h3 className="font-semibold text-sm">{h.name}</h3>
                     <p className="text-primary font-bold">{h.number}</p>
-                    <a href={h.url} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary flex items-center justify-center gap-1">
+                    <p className="text-xs text-foreground/80">Local: <span className="font-semibold">{h.local}</span></p>
+                    <a
+                      href={h.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-xs text-muted-foreground hover:text-primary flex items-center justify-center gap-1"
+                    >
                       Visit website <ExternalLink className="h-3 w-3" />
                     </a>
                   </CardContent>
