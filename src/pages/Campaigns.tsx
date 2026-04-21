@@ -153,12 +153,14 @@ const Campaigns = () => {
                           placeholder="Your name"
                           value={petitionForm.name}
                           onChange={(e) => setPetitionForm((p) => ({ ...p, name: e.target.value }))}
+                          maxLength={200}
                         />
                         <Input
                           type="email"
                           placeholder="Your email"
                           value={petitionForm.email}
                           onChange={(e) => setPetitionForm((p) => ({ ...p, email: e.target.value }))}
+                          maxLength={254}
                         />
                         <div className="flex gap-2">
                           <Button onClick={() => handleSign(campaign.id)} className="flex-1" disabled={submitLoading}>
