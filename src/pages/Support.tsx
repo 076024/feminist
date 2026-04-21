@@ -4,16 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Phone, ExternalLink, Heart } from "lucide-react";
+import { Shield, Phone, ExternalLink, Heart, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
+const LOCAL_CONTACT = "+260977572269";
+
 const hotlines = [
-  { name: "National Domestic Violence Hotline", number: "1-800-799-7233", url: "https://www.thehotline.org" },
-  { name: "RAINN Sexual Assault Hotline", number: "1-800-656-4673", url: "https://www.rainn.org" },
-  { name: "Crisis Text Line", number: "Text HOME to 741741", url: "https://www.crisistextline.org" },
-  { name: "National Suicide Prevention Lifeline", number: "988", url: "https://988lifeline.org" },
+  { name: "National Domestic Violence Hotline", number: "1-800-799-7233", url: "https://www.thehotline.org", local: LOCAL_CONTACT },
+  { name: "RAINN Sexual Assault Hotline", number: "1-800-656-4673", url: "https://www.rainn.org", local: LOCAL_CONTACT },
+  { name: "Crisis Text Line", number: "Text HOME to 741741", url: "https://www.crisistextline.org", local: LOCAL_CONTACT },
+  { name: "National Suicide Prevention Lifeline", number: "988", url: "https://988lifeline.org", local: LOCAL_CONTACT },
 ];
 
 const resources = [
@@ -32,6 +35,9 @@ const Support = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ message: "", category: "" });
+  const [contactOpen, setContactOpen] = useState<null | { name: string; number: string }>(null);
+
+  const waNumber = LOCAL_CONTACT.replace(/[^\d]/g, "");
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,12 +93,22 @@ const Support = () => {
                 viewport={{ once: true }}
                 variants={fadeUp}
               >
-                <Card className="border-destructive/20 shadow-md h-full">
+                <Card
+                  className="border-destructive/20 shadow-md h-full cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => setContactOpen({ name: h.name, number: h.local })}
+                >
                   <CardContent className="pt-6 text-center space-y-2">
                     <Phone className="h-6 w-6 mx-auto text-primary" />
                     <h3 className="font-semibold text-sm">{h.name}</h3>
                     <p className="text-primary font-bold">{h.number}</p>
-                    <a href={h.url} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary flex items-center justify-center gap-1">
+                    <p className="text-xs text-foreground/80">Local: <span className="font-semibold">{h.local}</span></p>
+                    <a
+                      href={h.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-xs text-muted-foreground hover:text-primary flex items-center justify-center gap-1"
+                    >
                       Visit website <ExternalLink className="h-3 w-3" />
                     </a>
                   </CardContent>
@@ -180,6 +196,33 @@ const Support = () => {
           </div>
         </div>
       </section>
+
+      <Dialog open={!!contactOpen} onOpenChange={(o) => !o && setContactOpen(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Contact {contactOpen?.name}</DialogTitle>
+            <DialogDescription>
+              Reach our local support line at <span className="font-semibold text-foreground">{contactOpen?.number}</span>. Choose how you'd like to connect.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-2">
+            <Button asChild variant="outline" className="w-full">
+              <a href={`tel:${contactOpen?.number ?? ""}`}>
+                <Phone className="h-4 w-4 mr-2" /> Call
+              </a>
+            </Button>
+            <Button asChild className="w-full">
+              <a
+                href={`https://wa.me/${waNumber}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
+              </a>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
