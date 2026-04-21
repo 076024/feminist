@@ -196,6 +196,33 @@ const Support = () => {
           </div>
         </div>
       </section>
+
+      <Dialog open={!!contactOpen} onOpenChange={(o) => !o && setContactOpen(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Contact {contactOpen?.name}</DialogTitle>
+            <DialogDescription>
+              Reach our local support line at <span className="font-semibold text-foreground">{contactOpen?.number}</span>. Choose how you'd like to connect.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-2">
+            <Button asChild variant="outline" className="w-full">
+              <a href={`tel:${contactOpen?.number ?? ""}`}>
+                <Phone className="h-4 w-4 mr-2" /> Call
+              </a>
+            </Button>
+            <Button asChild className="w-full">
+              <a
+                href={`https://wa.me/${waNumber}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
+              </a>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
