@@ -4,16 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Phone, ExternalLink, Heart } from "lucide-react";
+import { Shield, Phone, ExternalLink, Heart, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
+const LOCAL_CONTACT = "+260977572269";
+
 const hotlines = [
-  { name: "National Domestic Violence Hotline", number: "1-800-799-7233", url: "https://www.thehotline.org" },
-  { name: "RAINN Sexual Assault Hotline", number: "1-800-656-4673", url: "https://www.rainn.org" },
-  { name: "Crisis Text Line", number: "Text HOME to 741741", url: "https://www.crisistextline.org" },
-  { name: "National Suicide Prevention Lifeline", number: "988", url: "https://988lifeline.org" },
+  { name: "National Domestic Violence Hotline", number: "1-800-799-7233", url: "https://www.thehotline.org", local: LOCAL_CONTACT },
+  { name: "RAINN Sexual Assault Hotline", number: "1-800-656-4673", url: "https://www.rainn.org", local: LOCAL_CONTACT },
+  { name: "Crisis Text Line", number: "Text HOME to 741741", url: "https://www.crisistextline.org", local: LOCAL_CONTACT },
+  { name: "National Suicide Prevention Lifeline", number: "988", url: "https://988lifeline.org", local: LOCAL_CONTACT },
 ];
 
 const resources = [
