@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { z } from "zod";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 
+const contactSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(200, "Name must be under 200 characters"),
+  email: z.string().trim().email("Please enter a valid email").max(254),
+  message: z.string().trim().min(1, "Message is required").max(5000, "Message must be under 5000 characters"),
+});
+
 const Contact = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -15,15 +22,16 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
-      toast({ title: "Please fill in all fields", variant: "destructive" });
+    const parsed = contactSchema.safeParse(form);
+    if (!parsed.success) {
+      toast({ title: parsed.error.issues[0].message, variant: "destructive" });
       return;
     }
     setLoading(true);
     const { error } = await supabase.from("contacts").insert({
-      name: form.name.trim(),
-      email: form.email.trim(),
-      message: form.message.trim(),
+      name: parsed.data.name,
+      email: parsed.data.email,
+      message: parsed.data.message,
     });
     setLoading(false);
     if (error) {
@@ -97,18 +105,21 @@ const Contact = () => {
                       placeholder="Your name"
                       value={form.name}
                       onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                      maxLength={200}
                     />
                     <Input
                       type="email"
                       placeholder="Your email"
                       value={form.email}
                       onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                      maxLength={254}
                     />
                     <Textarea
                       placeholder="Your message..."
                       value={form.message}
                       onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))}
                       rows={5}
+                      maxLength={5000}
                     />
                     <Button type="submit" className="w-full" disabled={loading}>
                       <Send className="h-4 w-4 mr-2" />

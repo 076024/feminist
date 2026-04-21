@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { z } from "zod";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Megaphone, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
+
+const petitionSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(200),
+  email: z.string().trim().email("Please enter a valid email").max(254),
+});
 
 interface Campaign {
   id: string;
@@ -40,15 +46,16 @@ const Campaigns = () => {
   }, []);
 
   const handleSign = async (campaignId: string) => {
-    if (!petitionForm.name.trim() || !petitionForm.email.trim()) {
-      toast({ title: "Name and email are required", variant: "destructive" });
+    const parsed = petitionSchema.safeParse(petitionForm);
+    if (!parsed.success) {
+      toast({ title: parsed.error.issues[0].message, variant: "destructive" });
       return;
     }
     setSubmitLoading(true);
     const { error } = await supabase.from("petitions").insert({
       campaign_id: campaignId,
-      signer_name: petitionForm.name.trim(),
-      signer_email: petitionForm.email.trim(),
+      signer_name: parsed.data.name,
+      signer_email: parsed.data.email,
     });
     setSubmitLoading(false);
     if (error) {
@@ -146,12 +153,14 @@ const Campaigns = () => {
                           placeholder="Your name"
                           value={petitionForm.name}
                           onChange={(e) => setPetitionForm((p) => ({ ...p, name: e.target.value }))}
+                          maxLength={200}
                         />
                         <Input
                           type="email"
                           placeholder="Your email"
                           value={petitionForm.email}
                           onChange={(e) => setPetitionForm((p) => ({ ...p, email: e.target.value }))}
+                          maxLength={254}
                         />
                         <div className="flex gap-2">
                           <Button onClick={() => handleSign(campaign.id)} className="flex-1" disabled={submitLoading}>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { z } from "zod";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,18 @@ import { Shield, Phone, ExternalLink, Heart, MessageCircle } from "lucide-react"
 import { motion } from "framer-motion";
 
 const LOCAL_CONTACT = "+260977572269";
+
+const helpSchema = z.object({
+  category: z.enum([
+    "domestic_violence",
+    "sexual_assault",
+    "harassment",
+    "discrimination",
+    "mental_health",
+    "other",
+  ], { message: "Please select a category" }),
+  message: z.string().trim().min(1, "Please describe what's happening").max(5000, "Message must be under 5000 characters"),
+});
 
 const hotlines = [
   { name: "Lifeline Zambia (Adults, 24/7)", number: "933", url: "https://clzambia.org/lifeline-993/", local: LOCAL_CONTACT },
@@ -44,15 +57,16 @@ const Support = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.message.trim() || !formData.category) {
-      toast({ title: "Please fill in all fields", variant: "destructive" });
+    const parsed = helpSchema.safeParse(formData);
+    if (!parsed.success) {
+      toast({ title: parsed.error.issues[0].message, variant: "destructive" });
       return;
     }
 
     setLoading(true);
     const { error } = await supabase.from("help_requests").insert({
-      message: formData.message.trim(),
-      category: formData.category,
+      message: parsed.data.message,
+      category: parsed.data.category,
     });
     setLoading(false);
 
@@ -156,6 +170,7 @@ const Support = () => {
                     value={formData.message}
                     onChange={(e) => setFormData((p) => ({ ...p, message: e.target.value }))}
                     rows={5}
+                    maxLength={5000}
                   />
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Sending..." : "Submit Anonymously"}

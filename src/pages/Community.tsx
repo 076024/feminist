@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { z } from "zod";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,16 @@ const fadeUp = {
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.4 } }),
 };
 
+const storySchema = z.object({
+  content: z.string().trim().min(1, "Please write your story").max(3000, "Story must be under 3000 characters"),
+});
+
+const volunteerSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(200),
+  email: z.string().trim().email("Please enter a valid email").max(254),
+  interests: z.string().trim().max(2000).optional().or(z.literal("")),
+});
+
 const Community = () => {
   const { toast } = useToast();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -52,12 +63,13 @@ const Community = () => {
 
   const handleStorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!storyForm.content.trim()) {
-      toast({ title: "Please write your story", variant: "destructive" });
+    const parsed = storySchema.safeParse(storyForm);
+    if (!parsed.success) {
+      toast({ title: parsed.error.issues[0].message, variant: "destructive" });
       return;
     }
     setStoryLoading(true);
-    const { error } = await supabase.from("testimonials").insert({ content: storyForm.content.trim() });
+    const { error } = await supabase.from("testimonials").insert({ content: parsed.data.content });
     setStoryLoading(false);
     if (error) {
       toast({ title: "Something went wrong", variant: "destructive" });
@@ -69,15 +81,16 @@ const Community = () => {
 
   const handleVolunteerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!volunteerForm.name.trim() || !volunteerForm.email.trim()) {
-      toast({ title: "Name and email are required", variant: "destructive" });
+    const parsed = volunteerSchema.safeParse(volunteerForm);
+    if (!parsed.success) {
+      toast({ title: parsed.error.issues[0].message, variant: "destructive" });
       return;
     }
     setVolunteerLoading(true);
     const { error } = await supabase.from("volunteers").insert({
-      name: volunteerForm.name.trim(),
-      email: volunteerForm.email.trim(),
-      interests: volunteerForm.interests.trim() || null,
+      name: parsed.data.name,
+      email: parsed.data.email,
+      interests: parsed.data.interests ? parsed.data.interests : null,
     });
     setVolunteerLoading(false);
     if (error) {
@@ -211,6 +224,7 @@ const Community = () => {
                     value={storyForm.content}
                     onChange={(e) => setStoryForm({ content: e.target.value })}
                     rows={5}
+                    maxLength={3000}
                   />
                   <Button type="submit" className="w-full" disabled={storyLoading}>
                     {storyLoading ? "Submitting..." : "Share Anonymously"}
@@ -241,18 +255,21 @@ const Community = () => {
                     placeholder="Your name"
                     value={volunteerForm.name}
                     onChange={(e) => setVolunteerForm((p) => ({ ...p, name: e.target.value }))}
+                    maxLength={200}
                   />
                   <Input
                     type="email"
                     placeholder="Your email"
                     value={volunteerForm.email}
                     onChange={(e) => setVolunteerForm((p) => ({ ...p, email: e.target.value }))}
+                    maxLength={254}
                   />
                   <Textarea
                     placeholder="What areas interest you? (e.g., events, outreach, content, design)"
                     value={volunteerForm.interests}
                     onChange={(e) => setVolunteerForm((p) => ({ ...p, interests: e.target.value }))}
                     rows={3}
+                    maxLength={2000}
                   />
                   <Button type="submit" className="w-full" disabled={volunteerLoading}>
                     {volunteerLoading ? "Signing up..." : "Join as Volunteer"}
