@@ -13,17 +13,19 @@ import { motion } from "framer-motion";
 const LOCAL_CONTACT = "+260977572269";
 
 const hotlines = [
-  { name: "National Domestic Violence Hotline", number: "1-800-799-7233", url: "https://www.thehotline.org", local: LOCAL_CONTACT },
-  { name: "RAINN Sexual Assault Hotline", number: "1-800-656-4673", url: "https://www.rainn.org", local: LOCAL_CONTACT },
-  { name: "Crisis Text Line", number: "Text HOME to 741741", url: "https://www.crisistextline.org", local: LOCAL_CONTACT },
-  { name: "National Suicide Prevention Lifeline", number: "988", url: "https://988lifeline.org", local: LOCAL_CONTACT },
+  { name: "Lifeline Zambia (Adults, 24/7)", number: "933", url: "https://clzambia.org/lifeline-993/", local: LOCAL_CONTACT },
+  { name: "Childline Zambia (Children & Youth)", number: "116", url: "https://clzambia.org", local: LOCAL_CONTACT },
+  { name: "Zambia Police GBV & Victim Support Unit", number: "991", url: "https://www.gender.gov.zm/?page_id=1616", local: LOCAL_CONTACT },
+  { name: "YWCA Zambia GBV Support", number: "+260 211 252 726", url: "https://ywca.org.zm", local: LOCAL_CONTACT },
 ];
 
 const resources = [
-  { name: "National Network to End Domestic Violence", url: "https://nnedv.org" },
-  { name: "UN Women", url: "https://www.unwomen.org" },
-  { name: "Planned Parenthood", url: "https://www.plannedparenthood.org" },
-  { name: "Mental Health America", url: "https://www.mhanational.org" },
+  { name: "Lifeline / Childline Zambia", url: "https://clzambia.org" },
+  { name: "Gender Division — GBV Referral Pathway", url: "https://www.gender.gov.zm/?page_id=1616" },
+  { name: "YWCA Zambia", url: "https://ywca.org.zm" },
+  { name: "Zambia Police Victim Support Unit", url: "https://www.zambiapolice.gov.zm" },
+  { name: "Women and Law in Southern Africa (WLSA Zambia)", url: "https://wlsazambia.org" },
+  { name: "UN Women Zambia", url: "https://africa.unwomen.org/en/where-we-are/eastern-and-southern-africa/zambia" },
 ];
 
 const fadeUp = {
