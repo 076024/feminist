@@ -64,7 +64,10 @@ const Support = () => {
     }
 
     setLoading(true);
-    const { error } = await supabase.from("help_requests").insert(parsed.data);
+    const { error } = await supabase.from("help_requests").insert({
+      message: parsed.data.message,
+      category: parsed.data.category,
+    });
     setLoading(false);
 
     if (error) {
