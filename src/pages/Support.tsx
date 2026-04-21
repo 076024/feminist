@@ -35,6 +35,9 @@ const Support = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ message: "", category: "" });
+  const [contactOpen, setContactOpen] = useState<null | { name: string; number: string }>(null);
+
+  const waNumber = LOCAL_CONTACT.replace(/[^\d]/g, "");
 
 
   const handleSubmit = async (e: React.FormEvent) => {
