@@ -28,7 +28,11 @@ const Contact = () => {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.from("contacts").insert(parsed.data);
+    const { error } = await supabase.from("contacts").insert({
+      name: parsed.data.name,
+      email: parsed.data.email,
+      message: parsed.data.message,
+    });
     setLoading(false);
     if (error) {
       toast({ title: "Something went wrong", variant: "destructive" });

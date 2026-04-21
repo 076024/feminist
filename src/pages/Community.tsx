@@ -224,6 +224,7 @@ const Community = () => {
                     value={storyForm.content}
                     onChange={(e) => setStoryForm({ content: e.target.value })}
                     rows={5}
+                    maxLength={3000}
                   />
                   <Button type="submit" className="w-full" disabled={storyLoading}>
                     {storyLoading ? "Submitting..." : "Share Anonymously"}
@@ -254,18 +255,21 @@ const Community = () => {
                     placeholder="Your name"
                     value={volunteerForm.name}
                     onChange={(e) => setVolunteerForm((p) => ({ ...p, name: e.target.value }))}
+                    maxLength={200}
                   />
                   <Input
                     type="email"
                     placeholder="Your email"
                     value={volunteerForm.email}
                     onChange={(e) => setVolunteerForm((p) => ({ ...p, email: e.target.value }))}
+                    maxLength={254}
                   />
                   <Textarea
                     placeholder="What areas interest you? (e.g., events, outreach, content, design)"
                     value={volunteerForm.interests}
                     onChange={(e) => setVolunteerForm((p) => ({ ...p, interests: e.target.value }))}
                     rows={3}
+                    maxLength={2000}
                   />
                   <Button type="submit" className="w-full" disabled={volunteerLoading}>
                     {volunteerLoading ? "Signing up..." : "Join as Volunteer"}
