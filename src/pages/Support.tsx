@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import Layout from "@/components/layout/Layout";
+import SEO from "@/components/SEO";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -168,6 +169,10 @@ const Support = () => {
 
   return (
     <Layout>
+      <SEO
+        title="Support & Help"
+        description="Confidential help and resources for survivors. Report what's happening — even offline — and we'll be in touch."
+      />
 
       <motion.section
         initial={{ opacity: 0, y: 20 }}

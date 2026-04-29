@@ -47,6 +47,10 @@ const fadeUp = {
 const Index = () => {
   return (
     <Layout>
+      <SEO
+        title="Feminist — Equality is a Right, Not a Privilege"
+        description="We fight for gender equality, protect women from violence, and challenge oppression. Get help, join campaigns, and take action."
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-accent/60 text-primary-foreground">
         <img loading="eager" decoding="async" fetchPriority="high"

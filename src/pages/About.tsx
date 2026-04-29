@@ -1,4 +1,5 @@
 import Layout from "@/components/layout/Layout";
+import SEO from "@/components/SEO";
 import { Card, CardContent } from "@/components/ui/card";
 import { Target, Eye, Heart } from "lucide-react";
 import { motion } from "framer-motion";
@@ -29,6 +30,10 @@ const fadeUp = {
 const About = () => {
   return (
     <Layout>
+      <SEO
+        title="About Feminism"
+        description="Feminism advocates for the political, economic, and social equality of all genders. Learn our mission, vision, and values."
+      />
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

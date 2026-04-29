@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import Layout from "@/components/layout/Layout";
+import SEO from "@/components/SEO";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,6 +86,10 @@ const Campaigns = () => {
 
   return (
     <Layout>
+      <SEO
+        title="Campaigns & Advocacy"
+        description="Sign petitions, share campaigns, and help change laws. Your voice can change minds."
+      />
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
