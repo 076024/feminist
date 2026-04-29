@@ -13,6 +13,10 @@ const STATIC_PATHS = [
   "/events",
   "/campaigns",
   "/contact",
+  "/faq",
+  "/privacy",
+  "/terms",
+  "/accessibility",
 ];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
