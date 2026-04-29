@@ -4,6 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import Layout from "@/components/layout/Layout";
 import { ArrowRight, Heart, Shield, Users, Megaphone } from "lucide-react";
 import { motion } from "framer-motion";
+import heroWomen from "@/assets/hero-women.jpg";
+import handsSupport from "@/assets/hands-support.jpg";
+import protestMarch from "@/assets/protest-march.jpg";
 
 const stats = [
   { value: "1 in 3", label: "Women worldwide experience physical or sexual violence" },
@@ -45,6 +48,14 @@ const Index = () => {
     <Layout>
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-accent/60 text-primary-foreground">
+        <img
+          src={heroWomen}
+          alt="Diverse women raising fists in solidarity at sunset"
+          width={1600}
+          height={1024}
+          className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_70%)]" />
         <div className="container relative py-20 md:py-32 lg:py-40">
           <motion.div
