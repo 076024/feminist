@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Heart, Mail, Phone } from "lucide-react";
 import logo from "@/assets/logo.jpg";
+import Newsletter from "@/components/common/Newsletter";
 
 const Footer = () => {
   return (
@@ -26,18 +27,16 @@ const Footer = () => {
               <Link to="/awareness" className="text-muted-foreground hover:text-primary transition-colors">Awareness</Link>
               <Link to="/support" className="text-muted-foreground hover:text-primary transition-colors">Get Help</Link>
               <Link to="/campaigns" className="text-muted-foreground hover:text-primary transition-colors">Campaigns</Link>
+              <Link to="/events" className="text-muted-foreground hover:text-primary transition-colors">Events</Link>
+              <Link to="/faq" className="text-muted-foreground hover:text-primary transition-colors">FAQ</Link>
             </nav>
           </div>
 
           {/* Get Involved */}
           <div className="space-y-4">
-            <h4 className="font-heading font-semibold">Get Involved</h4>
-            <nav className="flex flex-col gap-2 text-sm">
-              <Link to="/community" className="text-muted-foreground hover:text-primary transition-colors">Community</Link>
-              <Link to="/community#volunteer" className="text-muted-foreground hover:text-primary transition-colors">Volunteer</Link>
-              <Link to="/campaigns" className="text-muted-foreground hover:text-primary transition-colors">Sign a Petition</Link>
-              <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact Us</Link>
-            </nav>
+            <h4 className="font-heading font-semibold">Stay Updated</h4>
+            <p className="text-sm text-muted-foreground">Get news, events and campaign updates.</p>
+            <Newsletter />
           </div>
 
           {/* Contact Info */}
@@ -52,11 +51,21 @@ const Footer = () => {
                 <Phone className="h-4 w-4" />
                 <span>+260 977 572 269</span>
               </div>
+              <div className="pt-2 text-xs">
+                <strong className="text-destructive">Emergency:</strong> 933 (GBV) · 991 (Police)
+              </div>
             </div>
           </div>
         </div>
 
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
+          <nav className="flex flex-wrap justify-center gap-x-4 gap-y-1 mb-3">
+            <Link to="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
+            <Link to="/terms" className="hover:text-primary transition-colors">Terms</Link>
+            <Link to="/accessibility" className="hover:text-primary transition-colors">Accessibility</Link>
+            <Link to="/faq" className="hover:text-primary transition-colors">FAQ</Link>
+            <Link to="/contact" className="hover:text-primary transition-colors">Contact</Link>
+          </nav>
           <p className="flex items-center justify-center gap-1">
             Made with <Heart className="h-4 w-4 text-primary fill-primary" /> for equality
           </p>
