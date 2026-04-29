@@ -1,5 +1,16 @@
 {
   "rewrites": [
+    {
+      "source": "/awareness/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|twitterbot|linkedinbot|slackbot|discordbot|telegrambot|whatsapp|pinterest|redditbot|embedly|skypeuripreview|vkshare|w3c_validator|baiduspider|bingbot|googlebot|applebot|yahoo|duckduckbot|petalbot).*"
+        }
+      ],
+      "destination": "/api/og/awareness/:id"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
