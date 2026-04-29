@@ -13,6 +13,7 @@ const STATIC_PATHS = [
   "/events",
   "/campaigns",
   "/contact",
+  "/resources",
   "/faq",
   "/privacy",
   "/terms",

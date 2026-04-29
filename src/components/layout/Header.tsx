@@ -12,6 +12,7 @@ const navLinks = [
   { to: "/community", label: "Community" },
   { to: "/events", label: "Events" },
   { to: "/campaigns", label: "Campaigns" },
+  { to: "/resources", label: "Resources" },
   { to: "/faq", label: "FAQ" },
   { to: "/contact", label: "Contact" },
 ];
