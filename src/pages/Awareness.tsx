@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import heroWomen from "@/assets/hero-women.jpg";
 
 interface BlogPost {
   id: string;
@@ -57,9 +58,16 @@ const Awareness = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-muted/50 py-16"
+        className="relative bg-muted/50 py-16 overflow-hidden"
       >
-        <div className="container max-w-3xl text-center space-y-4">
+        <img
+          src={heroWomen}
+          alt="Diverse women standing in solidarity"
+          width={1600}
+          height={1024}
+          className="absolute inset-0 w-full h-full object-cover opacity-20"
+        />
+        <div className="container relative max-w-3xl text-center space-y-4">
           <h1 className="text-4xl md:text-5xl font-bold">Awareness & Education</h1>
           <p className="text-lg text-muted-foreground">
             Knowledge is power. Explore articles on sexual violence awareness, women's rights, and gender equality.
