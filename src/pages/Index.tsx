@@ -139,6 +139,33 @@ const Index = () => {
       {/* Features */}
       <section className="py-16">
         <div className="container">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 items-center">
+            <motion.img
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              src={handsSupport}
+              alt="Diverse women's hands stacked in solidarity"
+              width={1280}
+              height={896}
+              loading="lazy"
+              className="w-full h-72 md:h-96 object-cover rounded-2xl shadow-xl"
+            />
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="space-y-4"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold">Stronger Together</h2>
+              <p className="text-muted-foreground">
+                When women support women, communities transform. We stand with survivors, amplify silenced voices, and build the safety nets that change lives.
+              </p>
+            </motion.div>
+          </div>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
