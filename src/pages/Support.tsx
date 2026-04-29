@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,8 +11,10 @@ import { useToast } from "@/hooks/use-toast";
 import { Shield, Phone, ExternalLink, Heart, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import handsSupport from "@/assets/hands-support.jpg";
+import { enqueueHelpRequest, flushHelpRequestQueue, getQueueSize } from "@/lib/offlineQueue";
 
 const LOCAL_CONTACT = "+260977572269";
+const DRAFT_KEY = "help_request_draft_v1";
 
 const helpSchema = z.object({
   category: z.enum([
@@ -50,11 +52,71 @@ const fadeUp = {
 const Support = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ message: "", category: "" });
+  const [formData, setFormData] = useState<{ message: string; category: string }>(() => {
+    if (typeof window === "undefined") return { message: "", category: "" };
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      return raw ? JSON.parse(raw) : { message: "", category: "" };
+    } catch {
+      return { message: "", category: "" };
+    }
+  });
   const [contactOpen, setContactOpen] = useState<null | { name: string; number: string }>(null);
+  const [isOnline, setIsOnline] = useState(typeof navigator !== "undefined" ? navigator.onLine : true);
+  const [queuedCount, setQueuedCount] = useState(0);
+  const draftTimer = useRef<number | null>(null);
 
   const waNumber = LOCAL_CONTACT.replace(/[^\d]/g, "");
 
+  // Auto-save draft to localStorage (debounced)
+  useEffect(() => {
+    if (draftTimer.current) window.clearTimeout(draftTimer.current);
+    draftTimer.current = window.setTimeout(() => {
+      try {
+        if (formData.message || formData.category) {
+          localStorage.setItem(DRAFT_KEY, JSON.stringify(formData));
+        } else {
+          localStorage.removeItem(DRAFT_KEY);
+        }
+      } catch {
+        // ignore
+      }
+    }, 400);
+    return () => {
+      if (draftTimer.current) window.clearTimeout(draftTimer.current);
+    };
+  }, [formData]);
+
+  // Track online/offline + flush any queued submissions when connectivity returns
+  useEffect(() => {
+    setQueuedCount(getQueueSize());
+
+    const tryFlush = async () => {
+      const before = getQueueSize();
+      if (before === 0) return;
+      const { sent, remaining } = await flushHelpRequestQueue();
+      setQueuedCount(remaining);
+      if (sent > 0) {
+        toast({ title: `${sent} queued ${sent === 1 ? "report has" : "reports have"} been delivered.` });
+      }
+    };
+
+    const handleOnline = () => {
+      setIsOnline(true);
+      tryFlush();
+    };
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    if (navigator.onLine) tryFlush();
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +127,22 @@ const Support = () => {
     }
 
     setLoading(true);
+
+    const offline = typeof navigator !== "undefined" && navigator.onLine === false;
+
+    if (offline) {
+      enqueueHelpRequest({ category: parsed.data.category, message: parsed.data.message });
+      setQueuedCount(getQueueSize());
+      setLoading(false);
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+      setFormData({ message: "", category: "" });
+      toast({
+        title: "Saved offline",
+        description: "Your report will be sent automatically when you're back online.",
+      });
+      return;
+    }
+
     const { error } = await supabase.from("help_requests").insert({
       message: parsed.data.message,
       category: parsed.data.category,
@@ -72,9 +150,18 @@ const Support = () => {
     setLoading(false);
 
     if (error) {
-      toast({ title: "Something went wrong. Please try again.", variant: "destructive" });
+      // Network failure mid-send → fall back to queue
+      enqueueHelpRequest({ category: parsed.data.category, message: parsed.data.message });
+      setQueuedCount(getQueueSize());
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+      setFormData({ message: "", category: "" });
+      toast({
+        title: "Saved for later",
+        description: "We couldn't reach the server, but your report is safely queued and will send automatically.",
+      });
     } else {
       toast({ title: "Your message has been received. You are not alone." });
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
       setFormData({ message: "", category: "" });
     }
   };
@@ -157,6 +244,16 @@ const Support = () => {
                 <p className="text-sm text-muted-foreground">
                   No personal information required. Your submission is completely anonymous.
                 </p>
+                {!isOnline && (
+                  <p className="text-xs mt-2 inline-block px-2 py-1 rounded bg-destructive/10 text-destructive">
+                    You're offline — your report will be saved and sent automatically when you reconnect.
+                  </p>
+                )}
+                {isOnline && queuedCount > 0 && (
+                  <p className="text-xs mt-2 text-muted-foreground">
+                    {queuedCount} pending {queuedCount === 1 ? "report" : "reports"} waiting to send…
+                  </p>
+                )}
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -181,7 +278,7 @@ const Support = () => {
                     maxLength={5000}
                   />
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Sending..." : "Submit Anonymously"}
+                    {loading ? "Sending..." : isOnline ? "Submit Anonymously" : "Save offline & send later"}
                   </Button>
                 </form>
               </CardContent>
