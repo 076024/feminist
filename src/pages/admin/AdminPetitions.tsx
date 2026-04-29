@@ -3,6 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { downloadCsv } from "@/lib/csv";
+import EmptyState from "@/components/common/EmptyState";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Petition {
   id: string;
@@ -49,6 +54,17 @@ const AdminPetitions = () => {
         <h1 className="text-2xl font-bold">Petition Signatures</h1>
         <div className="flex items-center gap-3">
           <Badge variant="secondary">{filtered.length} signatures</Badge>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => downloadCsv(
+              filtered.map((p) => ({ ...p, campaign_title: getCampaignTitle(p.campaign_id) })),
+              `petitions-${new Date().toISOString().slice(0, 10)}.csv`,
+            )}
+            disabled={filtered.length === 0}
+          >
+            <Download className="h-4 w-4 mr-2" /> Export CSV
+          </Button>
           <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Filter by campaign" />
@@ -64,9 +80,9 @@ const AdminPetitions = () => {
       </div>
 
       {loading ? (
-        <p className="text-muted-foreground">Loading...</p>
+        <div className="space-y-2">{[...Array(4)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
       ) : filtered.length === 0 ? (
-        <p className="text-muted-foreground">No signatures yet.</p>
+        <EmptyState title="No signatures yet" description="Petition signatures will appear here as supporters sign your campaigns." />
       ) : (
         <div className="rounded-md border">
           <Table>
