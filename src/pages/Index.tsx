@@ -4,6 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import Layout from "@/components/layout/Layout";
 import { ArrowRight, Heart, Shield, Users, Megaphone } from "lucide-react";
 import { motion } from "framer-motion";
+import heroWomen from "@/assets/hero-women.jpg";
+import handsSupport from "@/assets/hands-support.jpg";
+import protestMarch from "@/assets/protest-march.jpg";
 
 const stats = [
   { value: "1 in 3", label: "Women worldwide experience physical or sexual violence" },
@@ -45,6 +48,14 @@ const Index = () => {
     <Layout>
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-accent/60 text-primary-foreground">
+        <img
+          src={heroWomen}
+          alt="Diverse women raising fists in solidarity at sunset"
+          width={1600}
+          height={1024}
+          className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_70%)]" />
         <div className="container relative py-20 md:py-32 lg:py-40">
           <motion.div
@@ -128,6 +139,33 @@ const Index = () => {
       {/* Features */}
       <section className="py-16">
         <div className="container">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 items-center">
+            <motion.img
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              src={handsSupport}
+              alt="Diverse women's hands stacked in solidarity"
+              width={1280}
+              height={896}
+              loading="lazy"
+              className="w-full h-72 md:h-96 object-cover rounded-2xl shadow-xl"
+            />
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="space-y-4"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold">Stronger Together</h2>
+              <p className="text-muted-foreground">
+                When women support women, communities transform. We stand with survivors, amplify silenced voices, and build the safety nets that change lives.
+              </p>
+            </motion.div>
+          </div>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -173,9 +211,17 @@ const Index = () => {
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="py-16 bg-primary text-primary-foreground"
+        className="relative py-16 bg-primary text-primary-foreground overflow-hidden"
       >
-        <div className="container text-center space-y-6">
+        <img
+          src={protestMarch}
+          alt="Silhouettes of hands raised at a women's rights march at sunset"
+          width={1280}
+          height={896}
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover opacity-25"
+        />
+        <div className="container relative text-center space-y-6">
           <h2 className="text-3xl md:text-4xl font-bold">Ready to Make a Difference?</h2>
           <p className="text-primary-foreground/80 max-w-xl mx-auto">
             Whether you need help, want to volunteer, or wish to support our campaigns — there's a place for you here.

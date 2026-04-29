@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Phone, ExternalLink, Heart, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import handsSupport from "@/assets/hands-support.jpg";
 
 const LOCAL_CONTACT = "+260977572269";
 
@@ -85,9 +86,16 @@ const Support = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-primary text-primary-foreground py-16"
+        className="relative bg-primary text-primary-foreground py-16 overflow-hidden"
       >
-        <div className="container max-w-3xl text-center space-y-4">
+        <img
+          src={handsSupport}
+          alt="Hands joined together in support"
+          width={1280}
+          height={896}
+          className="absolute inset-0 w-full h-full object-cover opacity-25"
+        />
+        <div className="container relative max-w-3xl text-center space-y-4">
           <Shield className="h-12 w-12 mx-auto" />
           <h1 className="text-4xl md:text-5xl font-bold">You Are Not Alone</h1>
           <p className="text-lg text-primary-foreground/80">
