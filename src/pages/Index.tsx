@@ -211,9 +211,17 @@ const Index = () => {
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="py-16 bg-primary text-primary-foreground"
+        className="relative py-16 bg-primary text-primary-foreground overflow-hidden"
       >
-        <div className="container text-center space-y-6">
+        <img
+          src={protestMarch}
+          alt="Silhouettes of hands raised at a women's rights march at sunset"
+          width={1280}
+          height={896}
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover opacity-25"
+        />
+        <div className="container relative text-center space-y-6">
           <h2 className="text-3xl md:text-4xl font-bold">Ready to Make a Difference?</h2>
           <p className="text-primary-foreground/80 max-w-xl mx-auto">
             Whether you need help, want to volunteer, or wish to support our campaigns — there's a place for you here.
