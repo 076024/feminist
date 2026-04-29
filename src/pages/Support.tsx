@@ -88,7 +88,7 @@ const Support = () => {
         transition={{ duration: 0.5 }}
         className="relative bg-primary text-primary-foreground py-16 overflow-hidden"
       >
-        <img
+        <img loading="lazy" decoding="async"
           src={handsSupport}
           alt="Hands joined together in support"
           width={1280}

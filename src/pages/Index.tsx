@@ -48,7 +48,7 @@ const Index = () => {
     <Layout>
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-accent/60 text-primary-foreground">
-        <img
+        <img loading="lazy" decoding="async"
           src={heroWomen}
           alt="Diverse women raising fists in solidarity at sunset"
           width={1600}
