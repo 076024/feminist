@@ -91,11 +91,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 <meta property="og:url" content="${url}" />
 <meta property="og:image" content="${img}" />
 <meta property="og:image:alt" content="${t}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content="en_US" />
 ${a ? `<meta property="article:author" content="${a}" />` : ""}
 ${c ? `<meta property="article:section" content="${c}" />` : ""}
 ${publishedAt ? `<meta property="article:published_time" content="${escapeHtml(publishedAt)}" />` : ""}
 
 <meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@Feminist" />
 <meta name="twitter:title" content="${t}" />
 <meta name="twitter:description" content="${d}" />
 <meta name="twitter:image" content="${img}" />
