@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Layout from "@/components/layout/Layout";
+import SEO from "@/components/SEO";
 import { ArrowRight, Heart, Shield, Users, Megaphone } from "lucide-react";
 import { motion } from "framer-motion";
 import heroWomen from "@/assets/hero-women.jpg";
@@ -46,6 +47,10 @@ const fadeUp = {
 const Index = () => {
   return (
     <Layout>
+      <SEO
+        title="Feminist — Equality is a Right, Not a Privilege"
+        description="We fight for gender equality, protect women from violence, and challenge oppression. Get help, join campaigns, and take action."
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-accent/60 text-primary-foreground">
         <img loading="eager" decoding="async" fetchPriority="high"

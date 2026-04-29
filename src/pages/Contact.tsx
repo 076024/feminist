@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import Layout from "@/components/layout/Layout";
+import SEO from "@/components/SEO";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +45,10 @@ const Contact = () => {
 
   return (
     <Layout>
+      <SEO
+        title="Contact Us"
+        description="Questions, suggestions, or want to collaborate? Get in touch with the Feminist team."
+      />
       <section className="bg-muted/50 py-16">
         <div className="container max-w-3xl text-center space-y-4">
           <Mail className="h-12 w-12 mx-auto text-primary" />
