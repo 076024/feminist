@@ -5,9 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Share2, Link as LinkIcon, Facebook, Twitter, MessageCircle } from "lucide-react";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
-import jsPDF from "jspdf";
 
 interface BlogPost {
   id: string;
@@ -62,6 +60,7 @@ const BlogPostPage = () => {
   const handleDownload = async () => {
     if (!post) return;
     try {
+      const { default: jsPDF } = await import("jspdf");
       const doc = new jsPDF({ unit: "pt", format: "a4" });
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
@@ -204,12 +203,7 @@ const BlogPostPage = () => {
 
   return (
     <Layout>
-      <motion.article
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="container max-w-3xl py-12 md:py-20"
-      >
+      <article className="container max-w-3xl py-12 md:py-20">
         <Link to="/awareness" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-8">
           <ArrowLeft className="h-4 w-4" /> Back to Articles
         </Link>
@@ -233,6 +227,8 @@ const BlogPostPage = () => {
           <img
             src={post.image_url}
             alt={post.title}
+            loading="eager"
+            decoding="async"
             className="w-full rounded-lg mb-8 object-cover max-h-96"
           />
         )}
@@ -284,7 +280,7 @@ const BlogPostPage = () => {
         <div className="prose prose-lg max-w-none text-muted-foreground whitespace-pre-wrap">
           {post.content}
         </div>
-      </motion.article>
+      </article>
     </Layout>
   );
 };

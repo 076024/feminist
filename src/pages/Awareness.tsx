@@ -65,6 +65,8 @@ const Awareness = () => {
           alt="Diverse women standing in solidarity"
           width={1600}
           height={1024}
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover opacity-20"
         />
         <div className="container relative max-w-3xl text-center space-y-4">
