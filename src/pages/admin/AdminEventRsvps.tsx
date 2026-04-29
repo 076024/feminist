@@ -7,6 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ClipboardList, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { Download } from "lucide-react";
+import { downloadCsv } from "@/lib/csv";
 
 interface Rsvp {
   id: string;
@@ -77,6 +79,17 @@ const AdminEventRsvps = () => {
             ))}
           </SelectContent>
         </Select>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => downloadCsv(
+            filtered.map((r) => ({ ...r, event_title: eventTitle(r.event_id) })),
+            `event-rsvps-${new Date().toISOString().slice(0, 10)}.csv`,
+          )}
+          disabled={filtered.length === 0}
+        >
+          <Download className="h-4 w-4 mr-2" /> Export CSV
+        </Button>
       </div>
 
       <Card>
