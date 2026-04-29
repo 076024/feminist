@@ -10,6 +10,7 @@ const STATIC_PATHS = [
   "/awareness",
   "/support",
   "/community",
+  "/events",
   "/campaigns",
   "/contact",
 ];

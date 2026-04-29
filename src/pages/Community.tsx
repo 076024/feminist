@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { z } from "zod";
 import Layout from "@/components/layout/Layout";
 import SEO from "@/components/SEO";
@@ -8,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Calendar, HandHeart, MessageCircle, Quote } from "lucide-react";
+import { Users, Calendar, HandHeart, MessageCircle, Quote, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface Testimonial {
@@ -17,12 +18,11 @@ interface Testimonial {
   created_at: string;
 }
 
-interface Event {
+interface EventTeaser {
   id: string;
   title: string;
   date: string;
   location: string;
-  description: string;
   image_url: string | null;
 }
 
@@ -38,26 +38,39 @@ const storySchema = z.object({
 const volunteerSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(200),
   email: z.string().trim().email("Please enter a valid email").max(254),
+  phone: z
+    .string()
+    .trim()
+    .max(20, "Phone number is too long")
+    .regex(/^[+\d][\d\s\-()]{5,}$/, "Use digits, spaces, +, -, () only")
+    .optional()
+    .or(z.literal("")),
   interests: z.string().trim().max(2000).optional().or(z.literal("")),
 });
 
 const Community = () => {
   const { toast } = useToast();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<EventTeaser[]>([]);
   const [storyForm, setStoryForm] = useState({ content: "" });
-  const [volunteerForm, setVolunteerForm] = useState({ name: "", email: "", interests: "" });
+  const [volunteerForm, setVolunteerForm] = useState({ name: "", email: "", phone: "", interests: "" });
   const [storyLoading, setStoryLoading] = useState(false);
   const [volunteerLoading, setVolunteerLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      const nowIso = new Date().toISOString();
       const [testimonialsRes, eventsRes] = await Promise.all([
         supabase.from("testimonials").select("*").eq("approved", true).order("created_at", { ascending: false }),
-        supabase.from("events").select("*").order("date", { ascending: true }),
+        supabase
+          .from("events")
+          .select("id,title,date,location,image_url")
+          .gte("date", nowIso)
+          .order("date", { ascending: true })
+          .limit(3),
       ]);
       setTestimonials((testimonialsRes.data as Testimonial[]) ?? []);
-      setEvents((eventsRes.data as Event[]) ?? []);
+      setEvents((eventsRes.data as EventTeaser[]) ?? []);
     };
     fetchData();
   }, []);
@@ -91,6 +104,7 @@ const Community = () => {
     const { error } = await supabase.from("volunteers").insert({
       name: parsed.data.name,
       email: parsed.data.email,
+      phone: parsed.data.phone ? parsed.data.phone : null,
       interests: parsed.data.interests ? parsed.data.interests : null,
     });
     setVolunteerLoading(false);
@@ -98,7 +112,7 @@ const Community = () => {
       toast({ title: "Something went wrong", variant: "destructive" });
     } else {
       toast({ title: "Welcome aboard! We'll be in touch soon." });
-      setVolunteerForm({ name: "", email: "", interests: "" });
+      setVolunteerForm({ name: "", email: "", phone: "", interests: "" });
     }
   };
 
@@ -157,51 +171,64 @@ const Community = () => {
 
       <section className="py-12 bg-muted/30">
         <div className="container">
-          <div className="flex items-center gap-2 mb-8">
-            <Calendar className="h-6 w-6 text-primary" />
-            <h2 className="text-2xl font-bold">Upcoming Events</h2>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-6 w-6 text-primary" />
+              <h2 className="text-2xl font-bold">Upcoming Events</h2>
+            </div>
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/events">See all events <ArrowRight className="h-4 w-4 ml-1" /></Link>
+            </Button>
           </div>
           {events.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">No upcoming events. Check back soon!</p>
+            <Card className="border-none shadow-sm">
+              <CardContent className="py-8 text-center space-y-3">
+                <p className="text-muted-foreground">No upcoming events right now.</p>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/events">Browse past events</Link>
+                </Button>
+              </CardContent>
+            </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {events.map((event, i) => (
-                <motion.div
-                  key={event.id}
-                  custom={i}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  variants={fadeUp}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <Card className="border-none shadow-md h-full overflow-hidden">
-                    {event.image_url && (
-                      <img
-                        src={event.image_url}
-                        alt={event.title}
-                        className="w-full h-40 object-cover"
-                      />
-                    )}
-                    <CardHeader>
-                      <CardTitle className="text-lg">{event.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      <p className="text-sm text-primary font-medium">
-                        {new Date(event.date).toLocaleDateString(undefined, {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </p>
-                      <p className="text-sm text-muted-foreground">{event.location}</p>
-                      <p className="text-sm text-muted-foreground">{event.description}</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {events.map((event, i) => (
+                  <motion.div
+                    key={event.id}
+                    custom={i}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeUp}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <Link to="/events" className="block h-full">
+                      <Card className="border-none shadow-md h-full overflow-hidden hover:shadow-lg transition-shadow">
+                        {event.image_url && (
+                          <img src={event.image_url} alt={event.title} className="w-full h-40 object-cover" loading="lazy" />
+                        )}
+                        <CardHeader>
+                          <CardTitle className="text-lg">{event.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-1">
+                          <p className="text-sm text-primary font-medium">
+                            {new Date(event.date).toLocaleDateString(undefined, {
+                              weekday: "long", year: "numeric", month: "long", day: "numeric",
+                            })}
+                          </p>
+                          <p className="text-sm text-muted-foreground">{event.location}</p>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+              <div className="text-center mt-8">
+                <Button asChild>
+                  <Link to="/events">RSVP to an event <ArrowRight className="h-4 w-4 ml-2" /></Link>
+                </Button>
+              </div>
+            </>
           )}
         </div>
       </section>
@@ -268,6 +295,14 @@ const Community = () => {
                     value={volunteerForm.email}
                     onChange={(e) => setVolunteerForm((p) => ({ ...p, email: e.target.value }))}
                     maxLength={254}
+                  />
+                  <Input
+                    type="tel"
+                    inputMode="tel"
+                    placeholder="Phone number (optional)"
+                    value={volunteerForm.phone}
+                    onChange={(e) => setVolunteerForm((p) => ({ ...p, phone: e.target.value }))}
+                    maxLength={20}
                   />
                   <Textarea
                     placeholder="What areas interest you? (e.g., events, outreach, content, design)"

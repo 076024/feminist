@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -27,6 +28,13 @@ const helpSchema = z.object({
     "other",
   ], { message: "Please select a category" }),
   message: z.string().trim().min(1, "Please describe what's happening").max(5000, "Message must be under 5000 characters"),
+  phone: z
+    .string()
+    .trim()
+    .max(20, "Phone number is too long")
+    .regex(/^[+\d][\d\s\-()]{5,}$/, "Use digits, spaces, +, -, () only")
+    .optional()
+    .or(z.literal("")),
 });
 
 const hotlines = [
@@ -53,13 +61,14 @@ const fadeUp = {
 const Support = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<{ message: string; category: string }>(() => {
-    if (typeof window === "undefined") return { message: "", category: "" };
+  const [formData, setFormData] = useState<{ message: string; category: string; phone: string }>(() => {
+    if (typeof window === "undefined") return { message: "", category: "", phone: "" };
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
-      return raw ? JSON.parse(raw) : { message: "", category: "" };
+      const parsed = raw ? JSON.parse(raw) : {};
+      return { message: parsed.message ?? "", category: parsed.category ?? "", phone: parsed.phone ?? "" };
     } catch {
-      return { message: "", category: "" };
+      return { message: "", category: "", phone: "" };
     }
   });
   const [contactOpen, setContactOpen] = useState<null | { name: string; number: string }>(null);
@@ -136,7 +145,7 @@ const Support = () => {
       setQueuedCount(getQueueSize());
       setLoading(false);
       try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
-      setFormData({ message: "", category: "" });
+      setFormData({ message: "", category: "", phone: "" });
       toast({
         title: "Saved offline",
         description: "Your report will be sent automatically when you're back online.",
@@ -147,6 +156,7 @@ const Support = () => {
     const { error } = await supabase.from("help_requests").insert({
       message: parsed.data.message,
       category: parsed.data.category,
+      phone: parsed.data.phone ? parsed.data.phone : null,
     });
     setLoading(false);
 
@@ -155,7 +165,7 @@ const Support = () => {
       enqueueHelpRequest({ category: parsed.data.category, message: parsed.data.message });
       setQueuedCount(getQueueSize());
       try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
-      setFormData({ message: "", category: "" });
+      setFormData({ message: "", category: "", phone: "" });
       toast({
         title: "Saved for later",
         description: "We couldn't reach the server, but your report is safely queued and will send automatically.",
@@ -163,7 +173,7 @@ const Support = () => {
     } else {
       toast({ title: "Your message has been received. You are not alone." });
       try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
-      setFormData({ message: "", category: "" });
+      setFormData({ message: "", category: "", phone: "" });
     }
   };
 
@@ -282,6 +292,19 @@ const Support = () => {
                     rows={5}
                     maxLength={5000}
                   />
+                  <div className="space-y-1">
+                    <Input
+                      type="tel"
+                      inputMode="tel"
+                      placeholder="Phone number (optional — only if you'd like a callback)"
+                      value={formData.phone}
+                      onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
+                      maxLength={20}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Leave blank to stay fully anonymous. Numbers are only visible to our support team.
+                    </p>
+                  </div>
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Sending..." : isOnline ? "Submit Anonymously" : "Save offline & send later"}
                   </Button>

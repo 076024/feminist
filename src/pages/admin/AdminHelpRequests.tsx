@@ -11,6 +11,7 @@ interface HelpRequest {
   message: string;
   category: string;
   status: string;
+  phone: string | null;
   created_at: string;
 }
 
@@ -49,19 +50,27 @@ const AdminHelpRequests = () => {
               <TableRow>
                 <TableHead>Category</TableHead>
                 <TableHead>Message</TableHead>
+                <TableHead>Phone</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
               ) : requests.length === 0 ? (
-                <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No help requests</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No help requests</TableCell></TableRow>
               ) : requests.map((req) => (
                 <TableRow key={req.id}>
                   <TableCell><Badge variant="outline">{req.category}</Badge></TableCell>
                   <TableCell className="max-w-md truncate">{req.message}</TableCell>
+                  <TableCell>
+                    {req.phone ? (
+                      <a href={`tel:${req.phone}`} className="text-primary hover:underline whitespace-nowrap">{req.phone}</a>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Select value={req.status} onValueChange={(v) => updateStatus(req.id, v)}>
                       <SelectTrigger className="w-32">
