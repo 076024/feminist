@@ -2,6 +2,8 @@ import Layout from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Target, Eye, Heart } from "lucide-react";
 import { motion } from "framer-motion";
+import communityWomen from "@/assets/community-women.jpg";
+import protestMarch from "@/assets/protest-march.jpg";
 
 const timeline = [
   { year: "1848", event: "Seneca Falls Convention — the first women's rights convention in the U.S." },
@@ -50,6 +52,14 @@ const About = () => {
           className="container max-w-3xl space-y-6"
         >
           <h2 className="text-3xl font-bold text-center">What is Feminism?</h2>
+          <img
+            src={communityWomen}
+            alt="Group of joyful women smiling together in their community"
+            width={1280}
+            height={896}
+            loading="lazy"
+            className="w-full h-64 md:h-80 object-cover rounded-2xl shadow-lg my-6"
+          />
           <div className="prose prose-lg mx-auto text-muted-foreground space-y-4">
             <p>At its core, feminism is about equality. It challenges the systems and structures that have historically denied women their rights, their safety, and their autonomy. Feminism recognizes that gender-based oppression intersects with race, class, sexuality, disability, and other identities.</p>
             <p>From the suffragettes who fought for the vote to modern activists challenging workplace harassment, feminism has always been about expanding freedom and dignity for everyone. It benefits not just women, but all people, by dismantling harmful stereotypes and creating fairer societies.</p>
@@ -96,6 +106,14 @@ const About = () => {
           >
             A Brief History
           </motion.h2>
+          <img
+            src={protestMarch}
+            alt="Silhouettes of women raising hands at a sunset protest"
+            width={1280}
+            height={896}
+            loading="lazy"
+            className="w-full h-56 object-cover rounded-2xl shadow-md mb-10"
+          />
           <div className="relative">
             <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-primary/20" />
             <div className="space-y-8">
