@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Share2, Link as LinkIcon, Facebook, Twitter, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
+import SEO from "@/components/SEO";
 
 interface BlogPost {
   id: string;
@@ -36,55 +37,6 @@ const BlogPostPage = () => {
     };
     fetchPost();
   }, [id]);
-
-  // Update document title and social meta tags client-side for in-app navigation
-  useEffect(() => {
-    if (!post) return;
-    const url = window.location.href;
-    const description = (post.content || "")
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 200);
-    const image = post.image_url || "";
-
-    const prevTitle = document.title;
-    document.title = `${post.title} — Feminist`;
-
-    const setMeta = (selector: string, attr: "name" | "property", key: string, content: string) => {
-      let el = document.head.querySelector<HTMLMetaElement>(selector);
-      if (!el) {
-        el = document.createElement("meta");
-        el.setAttribute(attr, key);
-        document.head.appendChild(el);
-      }
-      el.setAttribute("content", content);
-      return el;
-    };
-
-    const tags: HTMLElement[] = [];
-    tags.push(setMeta(`meta[name="description"]`, "name", "description", description));
-    tags.push(setMeta(`meta[property="og:type"]`, "property", "og:type", "article"));
-    tags.push(setMeta(`meta[property="og:title"]`, "property", "og:title", post.title));
-    tags.push(setMeta(`meta[property="og:description"]`, "property", "og:description", description));
-    tags.push(setMeta(`meta[property="og:url"]`, "property", "og:url", url));
-    if (image) tags.push(setMeta(`meta[property="og:image"]`, "property", "og:image", image));
-    tags.push(setMeta(`meta[name="twitter:card"]`, "name", "twitter:card", "summary_large_image"));
-    tags.push(setMeta(`meta[name="twitter:title"]`, "name", "twitter:title", post.title));
-    tags.push(setMeta(`meta[name="twitter:description"]`, "name", "twitter:description", description));
-    if (image) tags.push(setMeta(`meta[name="twitter:image"]`, "name", "twitter:image", image));
-
-    let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
-    if (!canonical) {
-      canonical = document.createElement("link");
-      canonical.rel = "canonical";
-      document.head.appendChild(canonical);
-    }
-    canonical.href = url;
-
-    return () => {
-      document.title = prevTitle;
-    };
-  }, [post]);
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
 
@@ -252,6 +204,30 @@ const BlogPostPage = () => {
 
   return (
     <Layout>
+      {post && (
+        <SEO
+          title={post.title}
+          description={(post.content || "").replace(/\s+/g, " ").trim().slice(0, 200)}
+          image={post.image_url || undefined}
+          type="article"
+          article={{
+            author: post.author,
+            section: post.category,
+            publishedTime: post.created_at,
+          }}
+          jsonLd={{
+            "@context": "https://schema.org",
+            "@type": "NewsArticle",
+            headline: post.title,
+            description: (post.content || "").replace(/\s+/g, " ").trim().slice(0, 200),
+            image: post.image_url ? [post.image_url] : undefined,
+            author: post.author ? [{ "@type": "Person", name: post.author }] : undefined,
+            datePublished: post.created_at,
+            mainEntityOfPage: typeof window !== "undefined" ? window.location.href : undefined,
+            articleSection: post.category,
+          }}
+        />
+      )}
       <article className="container max-w-3xl py-12 md:py-20">
         <Link to="/awareness" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-8">
           <ArrowLeft className="h-4 w-4" /> Back to Articles

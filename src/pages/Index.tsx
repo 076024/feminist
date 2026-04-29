@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Layout from "@/components/layout/Layout";
+import SEO from "@/components/SEO";
 import { ArrowRight, Heart, Shield, Users, Megaphone } from "lucide-react";
 import { motion } from "framer-motion";
 import heroWomen from "@/assets/hero-women.jpg";
