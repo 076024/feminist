@@ -28,6 +28,7 @@ const Footer = () => {
               <Link to="/support" className="text-muted-foreground hover:text-primary transition-colors">Get Help</Link>
               <Link to="/campaigns" className="text-muted-foreground hover:text-primary transition-colors">Campaigns</Link>
               <Link to="/events" className="text-muted-foreground hover:text-primary transition-colors">Events</Link>
+              <Link to="/resources" className="text-muted-foreground hover:text-primary transition-colors">Resources</Link>
               <Link to="/faq" className="text-muted-foreground hover:text-primary transition-colors">FAQ</Link>
             </nav>
           </div>

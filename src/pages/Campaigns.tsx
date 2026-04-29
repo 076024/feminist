@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Megaphone, Share2 } from "lucide-react";
+import { Megaphone, Share2, Users } from "lucide-react";
 import { motion } from "framer-motion";
 
 const petitionSchema = z.object({
@@ -32,6 +32,14 @@ const Campaigns = () => {
   const [signingId, setSigningId] = useState<string | null>(null);
   const [petitionForm, setPetitionForm] = useState({ name: "", email: "" });
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [counts, setCounts] = useState<Record<string, number>>({});
+
+  const loadCount = async (id: string) => {
+    const { data } = await supabase.rpc("get_campaign_petition_count", { _campaign_id: id });
+    if (typeof data === "number" || typeof data === "string") {
+      setCounts((c) => ({ ...c, [id]: Number(data) }));
+    }
+  };
 
   useEffect(() => {
     const fetchCampaigns = async () => {
@@ -40,8 +48,10 @@ const Campaigns = () => {
         .select("*")
         .eq("status", "active")
         .order("created_at", { ascending: false });
-      setCampaigns((data as Campaign[]) ?? []);
+      const list = (data as Campaign[]) ?? [];
+      setCampaigns(list);
       setLoading(false);
+      list.forEach((c) => loadCount(c.id));
     };
     fetchCampaigns();
   }, []);
@@ -65,6 +75,7 @@ const Campaigns = () => {
       toast({ title: "Thank you for signing! Your voice matters." });
       setPetitionForm({ name: "", email: "" });
       setSigningId(null);
+      loadCount(campaignId);
     }
   };
 
@@ -151,6 +162,12 @@ const Campaigns = () => {
                     {campaign.goal && (
                       <p className="text-sm font-medium text-primary">Goal: {campaign.goal}</p>
                     )}
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Users className="h-4 w-4 text-primary" />
+                      <span>
+                        <strong className="text-foreground">{counts[campaign.id] ?? 0}</strong> {counts[campaign.id] === 1 ? "person has" : "people have"} signed
+                      </span>
+                    </div>
 
                     {signingId === campaign.id ? (
                       <div className="space-y-3 pt-2 border-t">
