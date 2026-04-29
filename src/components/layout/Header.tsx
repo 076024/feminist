@@ -10,6 +10,7 @@ const navLinks = [
   { to: "/awareness", label: "Awareness" },
   { to: "/support", label: "Get Help" },
   { to: "/community", label: "Community" },
+  { to: "/events", label: "Events" },
   { to: "/campaigns", label: "Campaigns" },
   { to: "/contact", label: "Contact" },
 ];

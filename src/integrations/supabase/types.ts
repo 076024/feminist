@@ -107,6 +107,53 @@ export type Database = {
         }
         Relationships: []
       }
+      event_rsvps: {
+        Row: {
+          created_at: string
+          email: string
+          event_id: string
+          guests: number
+          id: string
+          message: string | null
+          name: string
+          phone: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          event_id: string
+          guests?: number
+          id?: string
+          message?: string | null
+          name: string
+          phone: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          event_id?: string
+          guests?: number
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string
@@ -231,6 +278,7 @@ export type Database = {
           id: string
           interests: string | null
           name: string
+          phone: string | null
         }
         Insert: {
           created_at?: string
@@ -238,6 +286,7 @@ export type Database = {
           id?: string
           interests?: string | null
           name: string
+          phone?: string | null
         }
         Update: {
           created_at?: string
@@ -245,6 +294,7 @@ export type Database = {
           id?: string
           interests?: string | null
           name?: string
+          phone?: string | null
         }
         Relationships: []
       }

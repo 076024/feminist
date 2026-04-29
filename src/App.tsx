@@ -14,6 +14,7 @@ const Support = lazy(() => import("./pages/Support"));
 const Community = lazy(() => import("./pages/Community"));
 const Campaigns = lazy(() => import("./pages/Campaigns"));
 const Contact = lazy(() => import("./pages/Contact"));
+const Events = lazy(() => import("./pages/Events"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
 const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
@@ -24,6 +25,7 @@ const AdminTestimonials = lazy(() => import("./pages/admin/AdminTestimonials"));
 const AdminCampaigns = lazy(() => import("./pages/admin/AdminCampaigns"));
 const AdminContacts = lazy(() => import("./pages/admin/AdminContacts"));
 const AdminEvents = lazy(() => import("./pages/admin/AdminEvents"));
+const AdminEventRsvps = lazy(() => import("./pages/admin/AdminEventRsvps"));
 const AdminVolunteers = lazy(() => import("./pages/admin/AdminVolunteers"));
 const AdminPetitions = lazy(() => import("./pages/admin/AdminPetitions"));
 
@@ -46,6 +48,7 @@ const App = () => (
             <Route path="/community" element={<Community />} />
             <Route path="/campaigns" element={<Campaigns />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/events" element={<Events />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
               <Route index element={<AdminDashboard />} />
@@ -55,6 +58,7 @@ const App = () => (
               <Route path="campaigns" element={<AdminCampaigns />} />
               <Route path="contacts" element={<AdminContacts />} />
               <Route path="events" element={<AdminEvents />} />
+              <Route path="event-rsvps" element={<AdminEventRsvps />} />
               <Route path="volunteers" element={<AdminVolunteers />} />
               <Route path="petitions" element={<AdminPetitions />} />
             </Route>
