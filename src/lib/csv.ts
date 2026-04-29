@@ -1,12 +1,9 @@
 /**
  * Convert an array of records to CSV and trigger a browser download.
  */
-export function downloadCsv<T extends Record<string, unknown>>(
-  rows: T[],
-  filename: string,
-) {
+export function downloadCsv<T extends object>(rows: T[], filename: string) {
   if (rows.length === 0) return;
-  const headers = Object.keys(rows[0]);
+  const headers = Object.keys(rows[0] as Record<string, unknown>);
   const escape = (val: unknown) => {
     if (val === null || val === undefined) return "";
     const s = String(val).replace(/"/g, '""');
@@ -14,7 +11,9 @@ export function downloadCsv<T extends Record<string, unknown>>(
   };
   const csv = [
     headers.join(","),
-    ...rows.map((r) => headers.map((h) => escape(r[h])).join(",")),
+    ...rows.map((r) =>
+      headers.map((h) => escape((r as Record<string, unknown>)[h])).join(","),
+    ),
   ].join("\n");
 
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
