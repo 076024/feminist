@@ -22,6 +22,8 @@ const BlogPostPage = () => {
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState(false);
+  const CONTENT_PREVIEW_LIMIT = 800;
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -254,7 +256,7 @@ const BlogPostPage = () => {
             alt={post.title}
             loading="eager"
             decoding="async"
-            className="w-full rounded-lg mb-8 object-cover max-h-96"
+            className="w-full h-56 rounded-lg mb-8 object-cover"
           />
         )}
 
@@ -268,7 +270,28 @@ const BlogPostPage = () => {
               <Download className="h-4 w-4 mr-2" /> Download image
             </Button>
           )}
-          <div className="flex items-center gap-1 ml-auto">
+        </div>
+
+        <div className="prose prose-lg max-w-none text-muted-foreground whitespace-pre-wrap">
+          {post.content.length > CONTENT_PREVIEW_LIMIT && !expanded
+            ? `${post.content.slice(0, CONTENT_PREVIEW_LIMIT).trimEnd()}…`
+            : post.content}
+        </div>
+        {post.content.length > CONTENT_PREVIEW_LIMIT && (
+          <Button
+            variant="link"
+            className="px-0 mt-4"
+            onClick={() => setExpanded((v) => !v)}
+          >
+            {expanded ? "See less" : "See more"}
+          </Button>
+        )}
+      </article>
+    </Layout>
+  );
+};
+
+export default BlogPostPage;
             <Button
               variant="ghost"
               size="icon"
