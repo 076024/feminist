@@ -4,8 +4,7 @@ const SUPABASE_URL = "https://atlgbizgdchqtlxktqed.supabase.co";
 const SUPABASE_ANON =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0bGdiaXpnZGNocXRseGt0cWVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MTQwOTYsImV4cCI6MjA5MTA5MDA5Nn0.eG7VS2rpX-XZZg6mAGTM4KfU7ZEjHRC0O9jP12unuFM";
 
-const DEFAULT_IMAGE =
-  "https://storage.googleapis.com/gpt-engineer-file-uploads/sAjmLyRKwEgMKr6VfJsgAlEqKTu1/social-images/social-1776648463662-1000328878.webp";
+const DEFAULT_IMAGE = "https://feminist.lovable.app/social-share.jpg";
 const SITE_NAME = "Feminist";
 
 const escapeHtml = (s: string) =>
