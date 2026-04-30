@@ -260,14 +260,6 @@ const BlogPostPage = () => {
 
         {/* Action toolbar */}
         <div className="flex flex-wrap items-center gap-2 mb-8 pb-6 border-b">
-          <Button variant="outline" size="sm" onClick={handleDownload}>
-            <Download className="h-4 w-4 mr-2" /> Download PDF
-          </Button>
-          {post.image_url && (
-            <Button variant="outline" size="sm" onClick={handleDownloadImage}>
-              <Download className="h-4 w-4 mr-2" /> Download image
-            </Button>
-          )}
           <Button
             variant="outline"
             size="sm"
@@ -299,6 +291,12 @@ const BlogPostPage = () => {
 
         <div className="prose prose-lg max-w-none text-muted-foreground whitespace-pre-wrap">
           {post.content}
+        </div>
+
+        <div className="mt-8 pt-6 border-t flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleDownload}>
+            <Download className="h-4 w-4 mr-2" /> Download PDF
+          </Button>
         </div>
       </article>
     </Layout>
