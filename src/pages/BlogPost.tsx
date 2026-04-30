@@ -235,19 +235,53 @@ const BlogPostPage = () => {
           <ArrowLeft className="h-4 w-4" /> Back to Articles
         </Link>
 
-        <div className="space-y-4 mb-8">
-          <div className="flex items-center gap-3 flex-wrap">
-            <Badge variant="secondary">{post.category}</Badge>
-            <span className="text-sm text-muted-foreground">By {post.author}</span>
-            <span className="text-sm text-muted-foreground">
-              {new Date(post.created_at).toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </span>
+        <div className="flex items-start justify-between gap-4 mb-8">
+          <div className="space-y-4 flex-1 min-w-0">
+            <div className="flex items-center gap-3 flex-wrap">
+              <Badge variant="secondary">{post.category}</Badge>
+              <span className="text-sm text-muted-foreground">By {post.author}</span>
+              <span className="text-sm text-muted-foreground">
+                {new Date(post.created_at).toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
+            </div>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">{post.title}</h1>
           </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">{post.title}</h1>
+          <div className="flex items-center gap-1 shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Share on WhatsApp"
+              onClick={() => openShare(`https://wa.me/?text=${encodeURIComponent(shareText)}`)}
+            >
+              <MessageCircle className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Share on Facebook"
+              onClick={() => openShare(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`)}
+            >
+              <Facebook className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Share on X"
+              onClick={() => openShare(`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(shareUrl)}`)}
+            >
+              <Twitter className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" title="Copy link" onClick={handleCopyLink}>
+              <LinkIcon className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" title="Share" onClick={handleNativeShare}>
+              <Share2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         {post.image_url && (
