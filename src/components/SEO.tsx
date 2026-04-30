@@ -3,8 +3,7 @@ import { useEffect } from "react";
 const SITE_NAME = "Feminist";
 const DEFAULT_DESCRIPTION =
   "Feminist is a platform fighting for gender equality, protecting women from violence, and building community. Find support, join campaigns, and take action.";
-const DEFAULT_IMAGE =
-  "https://storage.googleapis.com/gpt-engineer-file-uploads/sAjmLyRKwEgMKr6VfJsgAlEqKTu1/social-images/social-1776648463662-1000328878.webp";
+const DEFAULT_IMAGE = "/social-share.jpg";
 
 interface SEOProps {
   title: string;
