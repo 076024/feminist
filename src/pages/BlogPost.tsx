@@ -22,8 +22,6 @@ const BlogPostPage = () => {
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
-  const [expanded, setExpanded] = useState(false);
-  const CONTENT_PREVIEW_LIMIT = 800;
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -235,53 +233,19 @@ const BlogPostPage = () => {
           <ArrowLeft className="h-4 w-4" /> Back to Articles
         </Link>
 
-        <div className="flex items-start justify-between gap-4 mb-8">
-          <div className="space-y-4 flex-1 min-w-0">
-            <div className="flex items-center gap-3 flex-wrap">
-              <Badge variant="secondary">{post.category}</Badge>
-              <span className="text-sm text-muted-foreground">By {post.author}</span>
-              <span className="text-sm text-muted-foreground">
-                {new Date(post.created_at).toLocaleDateString(undefined, {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </span>
-            </div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">{post.title}</h1>
+        <div className="space-y-4 mb-8">
+          <div className="flex items-center gap-3 flex-wrap">
+            <Badge variant="secondary">{post.category}</Badge>
+            <span className="text-sm text-muted-foreground">By {post.author}</span>
+            <span className="text-sm text-muted-foreground">
+              {new Date(post.created_at).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </span>
           </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              title="Share on WhatsApp"
-              onClick={() => openShare(`https://wa.me/?text=${encodeURIComponent(shareText)}`)}
-            >
-              <MessageCircle className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              title="Share on Facebook"
-              onClick={() => openShare(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`)}
-            >
-              <Facebook className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              title="Share on X"
-              onClick={() => openShare(`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(shareUrl)}`)}
-            >
-              <Twitter className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" title="Copy link" onClick={handleCopyLink}>
-              <LinkIcon className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" title="Share" onClick={handleNativeShare}>
-              <Share2 className="h-4 w-4" />
-            </Button>
-          </div>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">{post.title}</h1>
         </div>
 
         {post.image_url && (
@@ -290,7 +254,7 @@ const BlogPostPage = () => {
             alt={post.title}
             loading="eager"
             decoding="async"
-            className="w-full h-56 rounded-lg mb-8 object-cover"
+            className="w-full rounded-lg mb-8"
           />
         )}
 
@@ -304,22 +268,38 @@ const BlogPostPage = () => {
               <Download className="h-4 w-4 mr-2" /> Download image
             </Button>
           )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => openShare(`https://wa.me/?text=${encodeURIComponent(shareText)}`)}
+          >
+            <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => openShare(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`)}
+          >
+            <Facebook className="h-4 w-4 mr-2" /> Facebook
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => openShare(`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(shareUrl)}`)}
+          >
+            <Twitter className="h-4 w-4 mr-2" /> X
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleCopyLink}>
+            <LinkIcon className="h-4 w-4 mr-2" /> Copy link
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleNativeShare}>
+            <Share2 className="h-4 w-4 mr-2" /> Share
+          </Button>
         </div>
 
         <div className="prose prose-lg max-w-none text-muted-foreground whitespace-pre-wrap">
-          {post.content.length > CONTENT_PREVIEW_LIMIT && !expanded
-            ? `${post.content.slice(0, CONTENT_PREVIEW_LIMIT).trimEnd()}…`
-            : post.content}
+          {post.content}
         </div>
-        {post.content.length > CONTENT_PREVIEW_LIMIT && (
-          <Button
-            variant="link"
-            className="px-0 mt-4"
-            onClick={() => setExpanded((v) => !v)}
-          >
-            {expanded ? "See less" : "See more"}
-          </Button>
-        )}
       </article>
     </Layout>
   );
