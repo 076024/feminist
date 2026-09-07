@@ -1,53 +1,30 @@
+# Get the site working again on Vercel
 
+## What I found
 
-# Plan: Build All Remaining Features
+I checked `feminist-one.vercel.app` directly. Every address on it — the home page, the articles page, the sitemap — returns the same Vercel message:
 
-## Summary
-Add 6 remaining features: individual blog post pages, admin volunteers section, admin petitions section, social share buttons on campaigns, framer-motion animations, and mobile-responsive admin sidebar.
+```text
+The deployment could not be found on Vercel.
+DEPLOYMENT_NOT_FOUND
+```
 
-## Features
+This is not a problem in the site's code. That message means Vercel has no live deployment behind that address any more — the project there was removed, disconnected from its code source, or its last deployment was deleted. Nothing I change in the code can bring it back on its own; the site has to be deployed to Vercel again.
 
-### 1. Individual Blog Post Pages
-- Create `src/pages/BlogPost.tsx` — full article view fetching by ID from `blog_posts`
-- Add route `/awareness/:id` in `App.tsx`
-- Update article cards in `Awareness.tsx` to link to `/awareness/{id}`
+## Two ways forward
 
-### 2. Admin Volunteers Section
-- Create `src/pages/admin/AdminVolunteers.tsx` — table view of volunteer signups from `volunteers` table (name, email, interests, date)
-- Add route and sidebar nav link in `App.tsx` and `AdminLayout.tsx`
+**Option A — keep using Vercel.** You (or I, if you give me access details) re-create the deployment: connect the project's GitHub repository to Vercel again and deploy. The settings it needs are the standard Vite ones (build command `npm run build`, output folder `dist`), and the three backend connection values from the project's environment need to be added in Vercel's settings. Once it deploys, the address works again — and the article link previews and sitemap keep working, because those small server files are already in the project.
 
-### 3. Admin Petitions Section
-- Create `src/pages/admin/AdminPetitions.tsx` — table showing petition signatures from `petitions` table, grouped or filterable by campaign
-- Add RLS policy so admins can SELECT from `petitions` table (currently missing admin read policy)
-- Add route and sidebar nav link
+**Option B — use Lovable hosting instead.** The site is already published at `feminist.lovable.app`. Pressing Publish there gets you a working live site immediately with no external setup. The trade-off: rich link previews for individual articles (the picture and headline that show up on Facebook/WhatsApp) only work on Vercel, since those depend on the small server files Lovable hosting doesn't run.
 
-### 4. Social Share Buttons on Campaigns
-- Add share buttons (Twitter/X, Facebook, WhatsApp) to each campaign card in `Campaigns.tsx` alongside the existing generic share button
+## What I'll do once you choose
 
-### 5. Framer-Motion Animations
-- Install `framer-motion`
-- Add fade-in / slide-up animations on page hero sections and card grids across Index, About, Awareness, Support, Community, Campaigns pages
-- Add hover scale effects on interactive cards
+- **If Vercel:** I'll double-check every file Vercel needs is correct and complete (routing rules, the article-preview handler, the sitemap handler, the build settings), fix anything off, and give you a short click-by-click list for re-connecting the project in Vercel. I can't log into your Vercel account myself, so the final connect-and-deploy step is yours.
+- **If Lovable hosting:** I'll publish the site and confirm the live address responds, then tell you what changes about link previews.
 
-### 6. Mobile-Responsive Admin Sidebar
-- Convert admin sidebar to a collapsible sheet/drawer on mobile using existing Sheet component
-- Add hamburger menu trigger visible on small screens
+## Technical notes
 
-## Database Changes
-- Migration: Add RLS policy for admin SELECT on `petitions` table
-
-## Files Created
-- `src/pages/BlogPost.tsx`
-- `src/pages/admin/AdminVolunteers.tsx`
-- `src/pages/admin/AdminPetitions.tsx`
-
-## Files Modified
-- `src/App.tsx` — 3 new routes
-- `src/components/admin/AdminLayout.tsx` — 2 new nav items + mobile responsive sidebar
-- `src/pages/Awareness.tsx` — link cards to individual posts
-- `src/pages/Campaigns.tsx` — social share buttons
-- `src/pages/Index.tsx` — framer-motion animations
-- `src/pages/About.tsx` — framer-motion animations
-- `src/pages/Support.tsx` — framer-motion animations
-- `src/pages/Community.tsx` — framer-motion animations
-
+- Probe result: `curl -I https://feminist-one.vercel.app/` → 404 `DEPLOYMENT_NOT_FOUND` on all paths, meaning the domain has no assigned production deployment.
+- Repo is Vercel-ready already: `vercel.json` has the SPA catch-all, the `/sitemap.xml` rewrite, and the crawler-only rewrite to `/api/og/awareness/:id`; `@vercel/node` is in devDependencies; both API handlers exist.
+- Env vars required in Vercel: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`.
+- Framework preset: Vite. Build `npm run build`, output `dist`, install `npm install`.
