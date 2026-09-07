@@ -4,8 +4,21 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
+// Fallbacks so external hosts (e.g. Vercel) still build if env vars aren't set there.
+const FALLBACK_SUPABASE_URL = "https://atlgbizgdchqtlxktqed.supabase.co";
+const FALLBACK_SUPABASE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0bGdiaXpnZGNocXRseGt0cWVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MTQwOTYsImV4cCI6MjA5MTA5MDA5Nn0.eG7VS2rpX-XZZg6mAGTM4KfU7ZEjHRC0O9jP12unuFM";
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  define: {
+    "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(
+      process.env.VITE_SUPABASE_URL || FALLBACK_SUPABASE_URL,
+    ),
+    "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(
+      process.env.VITE_SUPABASE_PUBLISHABLE_KEY || FALLBACK_SUPABASE_KEY,
+    ),
+  },
   server: {
     host: "::",
     port: 8080,
